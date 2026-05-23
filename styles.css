@@ -548,94 +548,6 @@ body {
 
 .skill-row:hover .skill-percent { opacity: 1; }
 
-/* Action buttons */
-.about-actions {
-  display: flex;
-  gap: 16px;
-  margin-top: 8px;
-}
-
-.action-btn {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 24px;
-  border: var(--pixel) solid var(--white);
-  font-family: var(--font-display);
-  font-size: 12px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  text-decoration: none;
-  color: var(--white);
-  transition: all 0.1s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.action-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: var(--white);
-  transition: left 0.2s ease;
-  z-index: 0;
-}
-
-.action-btn:hover::before { left: 0; }
-.action-btn:hover { color: var(--black); }
-
-.action-btn .btn-icon {
-  font-size: 16px;
-  position: relative;
-  z-index: 1;
-  transition: transform 0.15s ease;
-}
-
-.action-btn:hover .btn-icon { transform: rotate(45deg) scale(1.1); }
-
-.action-btn .btn-text {
-  position: relative;
-  z-index: 1;
-}
-
-/* Quote block */
-.about-quote {
-  padding: 20px 24px;
-  border: 2px dashed var(--white);
-  position: relative;
-  opacity: 0.8;
-}
-
-.about-quote::before {
-  content: '"';
-  position: absolute;
-  top: -8px;
-  left: 16px;
-  font-size: 48px;
-  font-family: var(--font-display);
-  background: var(--black);
-  padding: 0 8px;
-  opacity: 0.3;
-}
-
-.about-quote p {
-  font-size: 14px;
-  line-height: 1.6;
-  font-style: italic;
-}
-
-.about-quote cite {
-  display: block;
-  margin-top: 12px;
-  font-size: 11px;
-  opacity: 0.5;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
 /* ============================================================
    POSTS
    ============================================================ */
@@ -1094,73 +1006,6 @@ body {
 
 .contact-card:hover .card-dither { opacity: 0.15; }
 
-/* Social links grid */
-.social-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.social-link {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 16px 12px;
-  border: 2px solid var(--white);
-  text-decoration: none;
-  color: var(--white);
-  transition: all 0.15s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.social-link::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: var(--white);
-  transition: left 0.2s ease;
-  z-index: 0;
-}
-
-.social-link:hover::after { left: 0; }
-.social-link:hover { color: var(--black); }
-
-.social-icon {
-  font-size: 20px;
-  position: relative;
-  z-index: 1;
-}
-
-.social-name {
-  font-family: var(--font-display);
-  font-size: 10px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  position: relative;
-  z-index: 1;
-}
-
-/* Contact ASCII art */
-.contact-ascii {
-  margin-top: 24px;
-  padding: 16px;
-  border: 2px solid var(--white);
-  background: var(--black);
-}
-
-.contact-ascii pre {
-  font-size: 10px;
-  line-height: 1.2;
-  white-space: pre;
-  opacity: 0.6;
-}
-
 /* ============================================================
    FOOTER
    ============================================================ */
@@ -1286,15 +1131,12 @@ body {
   .about-avatar { width: 100%; max-width: 280px; height: 240px; }
   .about-stats { flex-wrap: wrap; }
   .stat-box { min-width: calc(50% - 12px); }
-  .about-actions { flex-wrap: wrap; }
-  .action-btn { flex: 1; min-width: 120px; justify-content: center; }
   .section-title { font-size: 20px; }
   .posts-grid { gap: 24px; }
   .post-card { min-width: 280px; }
   .contact-content { grid-template-columns: 1fr; gap: 32px; }
   .contact-visual { height: 240px; }
   .signal-tower { transform: scale(0.8); }
-  .social-grid { grid-template-columns: repeat(3, 1fr); }
   .panel-inner { padding: 0 24px; }
   .section-header { padding: 0 24px; margin-bottom: 32px; }
 
