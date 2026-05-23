@@ -118,7 +118,6 @@ body {
   height: 100%;
   overflow-x: auto;
   overflow-y: hidden;
-  scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
@@ -134,7 +133,6 @@ body {
   flex: 0 0 100vw;
   height: 100vh;
   padding-top: var(--header-height);
-  scroll-snap-align: start;
   display: flex;
   flex-direction: column;
   justify-content: center;

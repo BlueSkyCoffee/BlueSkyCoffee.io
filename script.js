@@ -54,16 +54,75 @@
   const container = document.getElementById('scrollContainer');
 
   if (container) {
+    // Smooth scroll with RAF + auto-snap
+    let currentScroll = container.scrollLeft;
+    let targetScroll = container.scrollLeft;
+    let isScrolling = false;
+    let snapTimeout;
+    const SCROLL_SPEED = 3;
+    const SNAP_DELAY = 200; // ms to wait before snapping
+
+    function easeOutCubic(t) {
+      return 1 - Math.pow(1 - t, 3);
+    }
+
+    function animate() {
+      const diff = targetScroll - currentScroll;
+      if (Math.abs(diff) > 0.5) {
+        currentScroll += diff * 0.15;
+        container.scrollLeft = currentScroll;
+        requestAnimationFrame(animate);
+      } else {
+        isScrolling = false;
+        currentScroll = targetScroll;
+      }
+    }
+
+    function startScroll() {
+      if (!isScrolling) {
+        isScrolling = true;
+        requestAnimationFrame(animate);
+      }
+    }
+
+    function scrollToTarget(target) {
+      targetScroll = Math.max(0, Math.min(target, container.scrollWidth - container.clientWidth));
+      startScroll();
+    }
+
+    function snapToNearest() {
+      const panels = document.querySelectorAll('.panel');
+      const center = container.scrollLeft + container.clientWidth / 2;
+      let nearest = panels[0];
+      let minDist = Infinity;
+
+      panels.forEach(function(panel) {
+        const dist = Math.abs(panel.offsetLeft - center);
+        if (dist < minDist) {
+          minDist = dist;
+          nearest = panel;
+        }
+      });
+
+      scrollToTarget(nearest.offsetLeft);
+    }
+
     // Convert vertical wheel to horizontal scroll
     container.addEventListener('wheel', function(e) {
       e.preventDefault();
-      container.scrollLeft += e.deltaY || e.deltaX;
+      const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+      targetScroll += delta * SCROLL_SPEED;
+      startScroll();
+
+      // Reset snap timeout on each scroll
+      clearTimeout(snapTimeout);
+      snapTimeout = setTimeout(snapToNearest, SNAP_DELAY);
     }, { passive: false });
 
-    // Scroll progress bar
-    const progressBar = document.getElementById('scrollProgressBar');
-
+    // Scroll progress bar + nav sync
     container.addEventListener('scroll', function() {
+      // Update progress bar
+      const progressBar = document.getElementById('scrollProgressBar');
       if (progressBar) {
         const max = container.scrollWidth - container.clientWidth;
         progressBar.style.width = max > 0 ? (container.scrollLeft / max * 100) + '%' : '0%';
@@ -88,7 +147,7 @@
         e.preventDefault();
         const target = document.getElementById(dot.getAttribute('href').slice(1));
         if (target) {
-          container.scrollTo({ left: target.offsetLeft, behavior: 'smooth' });
+          scrollToTarget(target.offsetLeft);
         }
       });
     });
@@ -97,7 +156,7 @@
     const arrow = document.querySelector('.scroll-arrow');
     if (arrow) {
       arrow.addEventListener('click', function() {
-        container.scrollBy({ left: container.clientWidth, behavior: 'smooth' });
+        scrollToTarget(container.scrollLeft + container.clientWidth);
       });
     }
 
@@ -105,10 +164,10 @@
     document.addEventListener('keydown', function(e) {
       if (e.key === 'ArrowRight') {
         e.preventDefault();
-        container.scrollBy({ left: container.clientWidth, behavior: 'smooth' });
+        scrollToTarget(container.scrollLeft + container.clientWidth);
       } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
-        container.scrollBy({ left: -container.clientWidth, behavior: 'smooth' });
+        scrollToTarget(container.scrollLeft - container.clientWidth);
       }
     });
   }
