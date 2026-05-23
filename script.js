@@ -165,28 +165,19 @@
 
   if (mainScroll) {
     let scrollTimeout;
-    let isScrolling = false;
 
-    mainScroll.addEventListener(
+    document.addEventListener(
       'wheel',
       (e) => {
         e.preventDefault();
         const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
-        mainScroll.scrollLeft += delta * 3;
+        mainScroll.scrollLeft += delta * 2;
 
-        // During active scrolling: use proximity (loose snap)
-        if (!isScrolling) {
-          isScrolling = true;
-          mainScroll.classList.remove('snap-strict');
-        }
-
-        // Reset timeout on each wheel event
+        mainScroll.classList.remove('snap-strict');
         clearTimeout(scrollTimeout);
         scrollTimeout = setTimeout(() => {
-          isScrolling = false;
-          // After scroll stops: switch to mandatory (snap to nearest section)
           mainScroll.classList.add('snap-strict');
-        }, 150);
+        }, 200);
       },
       { capture: true, passive: false }
     );
