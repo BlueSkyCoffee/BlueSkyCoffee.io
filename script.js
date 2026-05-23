@@ -164,10 +164,11 @@
   const mainScroll = document.getElementById('mainScroll');
 
   if (mainScroll) {
-    mainScroll.addEventListener('wheel', (e) => {
-      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+    document.addEventListener('wheel', (e) => {
+      // Only handle vertical scroll (mouse wheel up/down)
+      if (Math.abs(e.deltaY) >= Math.abs(e.deltaX)) {
         e.preventDefault();
-        mainScroll.scrollLeft += e.deltaY * 2.5;
+        mainScroll.scrollLeft += e.deltaY * 3;
       }
     }, { passive: false });
   }
