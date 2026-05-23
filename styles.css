@@ -575,19 +575,31 @@ body {
 .post-card:hover .post-badge { background: var(--black); color: var(--white); }
 .post-card:hover { background: var(--white); color: var(--black); }
 .post-card:hover .post-tag { border-color: var(--black); }
+.post-card:hover .post-dither { border-bottom-color: var(--black); }
 
 .post-dither {
   height: 160px;
   background: repeating-conic-gradient(var(--white) 0% 25%, transparent 0% 50%) 0 0 / 6px 6px;
   border-bottom: var(--pixel) solid var(--white);
 }
+.post-card:hover .post-dither {
+  background: repeating-conic-gradient(var(--black) 0% 25%, transparent 0% 50%) 0 0 / 6px 6px;
+}
 .post-dither-alt {
   background: repeating-linear-gradient(-45deg, var(--white), var(--white) 1px, transparent 1px, transparent 3px);
+}
+.post-card:hover .post-dither-alt {
+  background: repeating-linear-gradient(-45deg, var(--black), var(--black) 1px, transparent 1px, transparent 3px);
 }
 .post-dither-alt2 {
   background:
     repeating-linear-gradient(0deg, var(--white), var(--white) 1px, transparent 1px, transparent 5px),
     repeating-linear-gradient(90deg, var(--white), var(--white) 1px, transparent 1px, transparent 5px);
+}
+.post-card:hover .post-dither-alt2 {
+  background:
+    repeating-linear-gradient(0deg, var(--black), var(--black) 1px, transparent 1px, transparent 5px),
+    repeating-linear-gradient(90deg, var(--black), var(--black) 1px, transparent 1px, transparent 5px);
 }
 
 .post-meta {
