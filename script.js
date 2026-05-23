@@ -59,8 +59,11 @@
     let targetScroll = container.scrollLeft;
     let isScrolling = false;
     let snapTimeout;
+    let lastScrollLeft = 0;
+    let scrollDirection = 0; // -1 = left, 0 = none, 1 = right
     const SCROLL_SPEED = 3;
-    const SNAP_DELAY = 200; // ms to wait before snapping
+    const SNAP_DELAY = 250; // ms to wait before snapping
+    const SNAP_THRESHOLD = 0.3; // only snap if within 30% of panel center
 
     function easeOutCubic(t) {
       return 1 - Math.pow(1 - t, 3);
@@ -92,26 +95,50 @@
 
     function snapToNearest() {
       const panels = document.querySelectorAll('.panel');
-      const center = container.scrollLeft + container.clientWidth / 2;
+      const viewCenter = container.scrollLeft + container.clientWidth / 2;
       let nearest = panels[0];
       let minDist = Infinity;
 
       panels.forEach(function(panel) {
-        const dist = Math.abs(panel.offsetLeft - center);
+        const panelCenter = panel.offsetLeft + panel.offsetWidth / 2;
+        const dist = Math.abs(panelCenter - viewCenter);
         if (dist < minDist) {
           minDist = dist;
           nearest = panel;
         }
       });
 
-      scrollToTarget(nearest.offsetLeft);
+      // Only snap if the distance is within threshold of panel width
+      const panelWidth = nearest ? nearest.offsetWidth : container.clientWidth;
+      if (minDist < panelWidth * SNAP_THRESHOLD || !isScrolling) {
+        scrollToTarget(nearest.offsetLeft);
+      }
     }
 
     // Convert vertical wheel to horizontal scroll
     container.addEventListener('wheel', function(e) {
+      // Check if we're over a vertically scrollable area
+      const target = e.target;
+      const scrollableParent = target.closest('.panel[style*="overflow-y: auto"], .scroll-container-y, .reading-body, .reading-inner, .archive-list, .posts-grid');
+
+      // If in a vertically scrollable area and there's vertical scroll content, let it scroll vertically
+      if (scrollableParent) {
+        const el = scrollableParent;
+        const canScrollVertically = el.scrollHeight > el.clientHeight;
+        if (canScrollVertically && Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+          // Allow vertical scroll — don't prevent default
+          return;
+        }
+      }
+
       e.preventDefault();
       const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+
+      // Track scroll direction
+      const prevScroll = container.scrollLeft;
       targetScroll += delta * SCROLL_SPEED;
+      scrollDirection = targetScroll > prevScroll ? 1 : -1;
+
       startScroll();
 
       // Reset snap timeout on each scroll

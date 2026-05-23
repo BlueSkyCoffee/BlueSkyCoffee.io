@@ -141,16 +141,29 @@ body {
   justify-content: center;
   position: relative;
   border-right: var(--pixel) solid var(--white);
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 .panel:last-child { border-right: none; }
 
+/* Panel inner content that scrolls vertically */
 .panel-inner {
   padding: 0 48px;
   width: 100%;
   position: relative;
   z-index: 1;
 }
+
+/* For panels with long content, wrap in scroll-container */
+.scroll-container-y {
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
+  padding-top: var(--header-height);
+}
+.scroll-container-y::-webkit-scrollbar { width: 4px; }
+.scroll-container-y::-webkit-scrollbar-track { background: var(--black); }
+.scroll-container-y::-webkit-scrollbar-thumb { background: var(--white); }
 
 /* --- Section Header --- */
 .section-header {
@@ -1231,8 +1244,8 @@ body {
    FOOTER
    ============================================================ */
 .panel-footer {
-  min-width: 80vw;
-  flex: 0 0 80vw;
+  min-width: 60vw;
+  flex: 0 0 60vw;
   background: var(--black);
   border-right: none;
 }
