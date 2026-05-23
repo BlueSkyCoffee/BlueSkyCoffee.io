@@ -164,45 +164,32 @@
   const mainScroll = document.getElementById('mainScroll');
 
   if (mainScroll) {
-    let currentScroll = 0;
-    let targetScroll = 0;
-    let rafId = null;
-
-    function smoothScroll() {
-      const diff = targetScroll - currentScroll;
-      if (Math.abs(diff) < 0.5) {
-        mainScroll.scrollLeft = targetScroll;
-        currentScroll = targetScroll;
-        rafId = null;
-        return;
-      }
-      currentScroll += diff * 0.15;
-      mainScroll.scrollLeft = currentScroll;
-      rafId = requestAnimationFrame(smoothScroll);
-    }
+    let scrollTimeout;
+    let isScrolling = false;
 
     mainScroll.addEventListener(
       'wheel',
       (e) => {
         e.preventDefault();
         const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
-        targetScroll += delta * 3;
-        targetScroll = Math.max(0, Math.min(targetScroll, mainScroll.scrollWidth - mainScroll.clientWidth));
-        if (!rafId) {
-          currentScroll = mainScroll.scrollLeft;
-          rafId = requestAnimationFrame(smoothScroll);
+        mainScroll.scrollLeft += delta * 3;
+
+        // During active scrolling: use proximity (loose snap)
+        if (!isScrolling) {
+          isScrolling = true;
+          mainScroll.classList.remove('snap-strict');
         }
+
+        // Reset timeout on each wheel event
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+          isScrolling = false;
+          // After scroll stops: switch to mandatory (snap to nearest section)
+          mainScroll.classList.add('snap-strict');
+        }, 150);
       },
       { capture: true, passive: false }
     );
-
-    // Sync currentScroll when user interacts via touch/keyboard
-    mainScroll.addEventListener('scroll', () => {
-      if (!rafId) {
-        currentScroll = mainScroll.scrollLeft;
-        targetScroll = currentScroll;
-      }
-    });
   }
 
   // --- Scroll Progress Bar ---

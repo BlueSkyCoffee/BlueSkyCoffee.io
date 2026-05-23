@@ -242,9 +242,13 @@ a {
   height: 100vh;
   overflow-x: auto;
   overflow-y: auto;
-  scroll-snap-type: x mandatory;
+  scroll-snap-type: x proximity;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+}
+
+.horizontal-scroll.snap-strict {
+  scroll-snap-type: x mandatory;
 }
 
 .horizontal-scroll::-webkit-scrollbar {
