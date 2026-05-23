@@ -5,6 +5,9 @@
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
+/* Global link reset — 1bit style */
+a { color: inherit; text-decoration: none; }
+
 :root {
   --black: #000;
   --white: #fff;
@@ -638,6 +641,212 @@ body {
   border-top: 1px solid var(--white);
   letter-spacing: 1px;
   transition: all 0.1s ease;
+  cursor: pointer;
+}
+
+/* ============================================================
+   READING VIEW — dynamically injected panel for full post reading
+   ============================================================ */
+.panel-reading-view {
+  flex: 0 0 100vw;
+}
+
+.reading-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  padding-top: 24px;
+  padding-bottom: 48px;
+  display: flex;
+  flex-direction: column;
+}
+
+.reading-header { margin-bottom: 40px; }
+
+.reading-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  color: var(--white);
+  border: 2px solid var(--white);
+  padding: 8px 16px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  margin-bottom: 24px;
+}
+.reading-back:hover {
+  background: var(--white);
+  color: var(--black);
+}
+
+.reading-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  font-size: 12px;
+}
+
+.reading-date {
+  font-family: var(--font-display);
+  letter-spacing: 1px;
+  opacity: 0.6;
+}
+
+.reading-tags { display: flex; gap: 8px; }
+
+.reading-tag {
+  border: 1px solid var(--white);
+  padding: 2px 8px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+.reading-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  letter-spacing: 3px;
+  line-height: 1.3;
+  margin-bottom: 16px;
+}
+
+.reading-title-line {
+  height: 4px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--white) 0px, var(--white) 4px,
+    transparent 4px, transparent 8px
+  );
+  width: 120px;
+}
+
+.reading-body {
+  font-size: 15px;
+  line-height: 1.8;
+  flex: 1;
+}
+
+.reading-body p { margin-bottom: 20px; }
+.reading-body p:last-child { margin-bottom: 0; }
+
+.reading-body h1, .reading-body h2, .reading-body h3 {
+  font-family: var(--font-display);
+  margin: 32px 0 16px;
+  letter-spacing: 2px;
+}
+.reading-body h1 { font-size: 22px; }
+.reading-body h2 { font-size: 18px; }
+.reading-body h3 { font-size: 15px; }
+
+.reading-body code {
+  background: var(--white);
+  color: var(--black);
+  padding: 2px 6px;
+  font-family: var(--font-body);
+  font-size: 13px;
+}
+
+.reading-body pre {
+  border: 2px solid var(--white);
+  padding: 16px;
+  margin: 20px 0;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.reading-body pre code {
+  background: transparent;
+  color: var(--white);
+  padding: 0;
+}
+
+.reading-body blockquote {
+  border-left: 4px solid var(--white);
+  padding: 12px 20px;
+  margin: 20px 0;
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.reading-body ul, .reading-body ol {
+  padding-left: 24px;
+  margin: 16px 0;
+}
+
+.reading-body li {
+  margin-bottom: 8px;
+  list-style: none;
+  position: relative;
+}
+.reading-body ul li::before {
+  content: '▸';
+  position: absolute;
+  left: -16px;
+  color: var(--white);
+  opacity: 0.5;
+}
+
+/* 1bit link style in reading body */
+.reading-body a {
+  color: var(--white);
+  border-bottom: 2px dashed var(--white);
+  padding-bottom: 1px;
+  transition: all 0.1s ease;
+}
+.reading-body a:hover {
+  background: var(--white);
+  color: var(--black);
+  border-bottom-color: var(--black);
+}
+
+.reading-body hr {
+  border: none;
+  height: 2px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--white) 0px, var(--white) 4px,
+    transparent 4px, transparent 8px
+  );
+  margin: 32px 0;
+  opacity: 0.3;
+}
+
+.reading-footer {
+  margin-top: 48px;
+  padding-top: 24px;
+  text-align: center;
+}
+
+.reading-footer-line {
+  height: 2px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--white) 0px, var(--white) 2px,
+    transparent 2px, transparent 6px
+  );
+  opacity: 0.2;
+  margin-bottom: 24px;
+}
+
+.reading-back-btn {
+  background: transparent;
+  color: var(--white);
+  border: 2px solid var(--white);
+  padding: 12px 24px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+.reading-back-btn:hover {
+  background: var(--white);
+  color: var(--black);
 }
 
 /* ============================================================

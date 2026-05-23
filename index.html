@@ -172,31 +172,8 @@
               <h2 class="section-title">LATEST POSTS</h2>
               <div class="section-line"></div>
             </div>
-            <div class="posts-grid">
-              <article class="post-card">
-                <span class="post-badge">01</span>
-                <div class="post-dither"></div>
-                <div class="post-meta"><span class="post-date">2026.05.20</span><span class="post-tag">#tech</span></div>
-                <h3 class="post-title">Why 1bit Design Matters in 2026</h3>
-                <p class="post-excerpt">In a world of infinite colors, choosing just two is the most radical act of creativity.</p>
-                <a href="#" class="post-link">[read more] →</a>
-              </article>
-              <article class="post-card">
-                <span class="post-badge">02</span>
-                <div class="post-dither post-dither-alt"></div>
-                <div class="post-meta"><span class="post-date">2026.05.15</span><span class="post-tag">#dev</span></div>
-                <h3 class="post-title">Building a Blog Without a Framework</h3>
-                <p class="post-excerpt">Pure HTML, CSS, and vanilla JS. No build step. No dependencies. Just files.</p>
-                <a href="#" class="post-link">[read more] →</a>
-              </article>
-              <article class="post-card">
-                <span class="post-badge">03</span>
-                <div class="post-dither post-dither-alt2"></div>
-                <div class="post-meta"><span class="post-date">2026.05.08</span><span class="post-tag">#thoughts</span></div>
-                <h3 class="post-title">The Aesthetics of Constraints</h3>
-                <p class="post-excerpt">Limitations don't hinder creativity — they focus it. How 1bit thinking applies to code.</p>
-                <a href="#" class="post-link">[read more] →</a>
-              </article>
+            <div class="posts-grid" id="postsGrid">
+              <!-- JS will render post cards here from posts.json -->
             </div>
           </div>
         </section>
@@ -213,92 +190,22 @@
             <!-- Stats bar -->
             <div class="archive-stats">
               <div class="stat-item">
-                <span class="stat-number">11</span>
+                <span class="stat-number" id="archiveTotalCount">0</span>
                 <span class="stat-label">Total Posts</span>
               </div>
               <div class="stat-item">
-                <span class="stat-number">2</span>
+                <span class="stat-number" id="archiveYearCount">0</span>
                 <span class="stat-label">Years</span>
               </div>
               <div class="stat-item">
-                <span class="stat-number">5</span>
+                <span class="stat-number" id="archiveTagCount">0</span>
                 <span class="stat-label">Tags</span>
               </div>
               <div class="archive-dither"></div>
             </div>
 
-            <div class="archive-list">
-              <!-- 2026 -->
-              <div class="archive-year-group">
-                <div class="year-header">
-                  <div class="year-dot"></div>
-                  <h3 class="year-label">2026</h3>
-                  <span class="year-count">5 posts</span>
-                </div>
-                <ul class="archive-entries">
-                  <li class="archive-item">
-                    <span class="entry-date">05.20</span>
-                    <span class="entry-tag">#tech</span>
-                    <span class="entry-title">Why 1bit Design Matters in 2026</span>
-                    <span class="entry-arrow">→</span>
-                  </li>
-                  <li class="archive-item">
-                    <span class="entry-date">05.15</span>
-                    <span class="entry-tag">#dev</span>
-                    <span class="entry-title">Building a Blog Without a Framework</span>
-                    <span class="entry-arrow">→</span>
-                  </li>
-                  <li class="archive-item">
-                    <span class="entry-date">05.08</span>
-                    <span class="entry-tag">#thoughts</span>
-                    <span class="entry-title">The Aesthetics of Constraints</span>
-                    <span class="entry-arrow">→</span>
-                  </li>
-                  <li class="archive-item">
-                    <span class="entry-date">04.22</span>
-                    <span class="entry-tag">#css</span>
-                    <span class="entry-title">CSS Dithering Patterns: A Deep Dive</span>
-                    <span class="entry-arrow">→</span>
-                  </li>
-                  <li class="archive-item">
-                    <span class="entry-date">03.28</span>
-                    <span class="entry-tag">#design</span>
-                    <span class="entry-title">Terminal Aesthetics in Modern Web</span>
-                    <span class="entry-arrow">→</span>
-                  </li>
-                </ul>
-              </div>
-
-              <div class="year-divider"></div>
-
-              <!-- 2025 -->
-              <div class="archive-year-group">
-                <div class="year-header">
-                  <div class="year-dot"></div>
-                  <h3 class="year-label">2025</h3>
-                  <span class="year-count">3 posts</span>
-                </div>
-                <ul class="archive-entries">
-                  <li class="archive-item">
-                    <span class="entry-date">12.15</span>
-                    <span class="entry-tag">#review</span>
-                    <span class="entry-title">Year End Review: 47 Posts</span>
-                    <span class="entry-arrow">→</span>
-                  </li>
-                  <li class="archive-item">
-                    <span class="entry-date">09.03</span>
-                    <span class="entry-tag">#thoughts</span>
-                    <span class="entry-title">Minimalism in Code and Life</span>
-                    <span class="entry-arrow">→</span>
-                  </li>
-                  <li class="archive-item">
-                    <span class="entry-date">02.14</span>
-                    <span class="entry-tag">#dev</span>
-                    <span class="entry-title">Love Letters to Command Line</span>
-                    <span class="entry-arrow">→</span>
-                  </li>
-                </ul>
-              </div>
+            <div class="archive-list" id="archiveList">
+              <!-- JS will render archive entries grouped by year -->
             </div>
           </div>
         </section>
@@ -396,6 +303,8 @@
     <div class="scroll-progress-bar" id="scrollProgressBar"></div>
   </div>
 
+  <!-- Markdown Parser -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
   <script src="script.js"></script>
 </body>
 </html>

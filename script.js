@@ -172,6 +172,337 @@
     });
   }
 
+  // --- Posts System ---
+  const postCache = new Map(); // Cache fetched post content by slug
+
+  // Initialize marked.js when available
+  function initMarked() {
+    if (typeof marked !== 'undefined') {
+      marked.setOptions({
+        breaks: true,
+        gfm: true,
+        headerIds: false,
+        mangle: false
+      });
+      return true;
+    }
+    return false;
+  }
+
+  // Parse YAML frontmatter from raw markdown
+  function parseFrontmatter(raw) {
+    const match = raw.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+    if (!match) return { meta: {}, body: raw };
+
+    const frontmatter = match[1];
+    const body = match[2];
+    const meta = {};
+
+    frontmatter.split('\n').forEach(function(line) {
+      const colonIdx = line.indexOf(':');
+      if (colonIdx === -1) return;
+      const key = line.slice(0, colonIdx).trim();
+      let val = line.slice(colonIdx + 1).trim();
+
+      // Strip quotes
+      if ((val.startsWith('"') && val.endsWith('"')) ||
+          (val.startsWith("'") && val.endsWith("'"))) {
+        val = val.slice(1, -1);
+      }
+      // Parse arrays like ["tech", "design"]
+      if (val.startsWith('[') && val.endsWith(']')) {
+        val = val.slice(1, -1).split(',').map(function(s) {
+          return s.trim().replace(/^["']|["']$/g, '');
+        });
+      }
+      // Parse booleans
+      if (val === 'true') val = true;
+      if (val === 'false') val = false;
+      meta[key] = val;
+    });
+
+    return { meta, body };
+  }
+
+  // Fetch and parse a single post's markdown file
+  async function loadPostContent(post) {
+    if (postCache.has(post.slug)) {
+      return postCache.get(post.slug);
+    }
+
+    try {
+      const res = await fetch(post.file);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const raw = await res.text();
+      const parsed = parseFrontmatter(raw);
+      const bodyHtml = typeof marked !== 'undefined'
+        ? marked.parse(parsed.body)
+        : '<pre>' + parsed.body.replace(/</g, '&lt;') + '</pre>';
+
+      const content = {
+        slug: post.slug,
+        title: parsed.meta.title || post.title,
+        date: parsed.meta.date || post.date,
+        tags: parsed.meta.tags || post.tags,
+        bodyHtml: bodyHtml
+      };
+
+      postCache.set(post.slug, content);
+      return content;
+    } catch (err) {
+      console.error('[BlueSkyCoffee] Failed to load post:', post.slug, err);
+      return {
+        slug: post.slug,
+        title: post.title,
+        date: post.date,
+        tags: post.tags,
+        bodyHtml: '<p><em>Content unavailable.</em></p>'
+      };
+    }
+  }
+
+  // Format date string YYYY-MM-DD → YYYY.MM.DD
+  function formatDate(dateStr) {
+    return dateStr.replace(/-/g, '.');
+  }
+
+  // Format date MM.DD → just show month.day
+  function formatShortDate(dateStr) {
+    const parts = dateStr.split('-');
+    return parts[1] + '.' + parts[2];
+  }
+
+  // Render post cards to #postsGrid
+  function renderPostCards(posts) {
+    const grid = document.getElementById('postsGrid');
+    if (!grid) return;
+
+    const ditherClasses = ['', ' post-dither-alt', ' post-dither-alt2'];
+
+    posts.forEach(function(post, i) {
+      const article = document.createElement('article');
+      article.className = 'post-card';
+      article.setAttribute('data-slug', post.slug);
+      article.innerHTML =
+        '<span class="post-badge">' + String(i + 1).padStart(2, '0') + '</span>' +
+        '<div class="post-dither' + ditherClasses[i % 3] + '"></div>' +
+        '<div class="post-meta">' +
+          '<span class="post-date">' + formatDate(post.date) + '</span>' +
+          '<span class="post-tag">#' + (Array.isArray(post.tags) ? post.tags[0] : post.tags) + '</span>' +
+        '</div>' +
+        '<h3 class="post-title">' + post.title + '</h3>' +
+        '<p class="post-excerpt">' + post.excerpt + '</p>' +
+        '<a href="#" class="post-link">[read more] →</a>';
+
+      grid.appendChild(article);
+    });
+  }
+
+  // Render archive entries grouped by year to #archiveList
+  function renderArchive(posts) {
+    const list = document.getElementById('archiveList');
+    if (!list) return;
+
+    // Group by year
+    const years = {};
+    posts.forEach(function(post) {
+      const year = post.date.split('-')[0];
+      if (!years[year]) years[year] = [];
+      years[year].push(post);
+    });
+
+    const sortedYears = Object.keys(years).sort(function(a, b) { return b - a; });
+
+    sortedYears.forEach(function(year, idx) {
+      const yearGroup = document.createElement('div');
+      yearGroup.className = 'archive-year-group';
+
+      const entries = years[year].sort(function(a, b) { return b.date.localeCompare(a.date); });
+
+      yearGroup.innerHTML =
+        '<div class="year-header">' +
+          '<div class="year-dot"></div>' +
+          '<h3 class="year-label">' + year + '</h3>' +
+          '<span class="year-count">' + entries.length + ' posts</span>' +
+        '</div>' +
+        '<ul class="archive-entries">' +
+          entries.map(function(post) {
+            return '<li class="archive-item" data-slug="' + post.slug + '">' +
+              '<span class="entry-date">' + formatShortDate(post.date) + '</span>' +
+              '<span class="entry-tag">#' + (Array.isArray(post.tags) ? post.tags[0] : post.tags) + '</span>' +
+              '<span class="entry-title">' + post.title + '</span>' +
+              '<span class="entry-arrow">→</span>' +
+            '</li>';
+          }).join('') +
+        '</ul>';
+
+      list.appendChild(yearGroup);
+
+      // Add divider between years (not after last)
+      if (idx < sortedYears.length - 1) {
+        const divider = document.createElement('div');
+        divider.className = 'year-divider';
+        list.appendChild(divider);
+      }
+    });
+  }
+
+  // Update archive stats
+  function renderArchiveStats(posts) {
+    const totalEl = document.getElementById('archiveTotalCount');
+    const yearEl = document.getElementById('archiveYearCount');
+    const tagEl = document.getElementById('archiveTagCount');
+
+    if (totalEl) totalEl.textContent = posts.length;
+
+    const years = new Set(posts.map(function(p) { return p.date.split('-')[0]; }));
+    if (yearEl) yearEl.textContent = years.size;
+
+    const tags = new Set();
+    posts.forEach(function(p) {
+      if (Array.isArray(p.tags)) p.tags.forEach(function(t) { tags.add(t); });
+    });
+    if (tagEl) tagEl.textContent = tags.size;
+  }
+
+  // Bind click handlers for post cards and archive items
+  function bindPostListeners(allPosts) {
+    // Post card "read more" links
+    document.querySelectorAll('.post-card .post-link').forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const card = link.closest('.post-card');
+        const slug = card ? card.getAttribute('data-slug') : null;
+        if (slug) {
+          const post = allPosts.find(function(p) { return p.slug === slug; });
+          if (post) openReadingView(post);
+        }
+      });
+    });
+
+    // Archive item clicks
+    document.querySelectorAll('.archive-item').forEach(function(item) {
+      item.addEventListener('click', function(e) {
+        e.preventDefault();
+        const slug = item.getAttribute('data-slug');
+        if (slug) {
+          const post = allPosts.find(function(p) { return p.slug === slug; });
+          if (post) openReadingView(post);
+        }
+      });
+    });
+  }
+
+  // Open reading view — dynamically inject a panel
+  async function openReadingView(post) {
+    const content = await loadPostContent(post);
+    const track = document.querySelector('.scroll-track');
+    if (!track) return;
+
+    // Remove existing reading view if any
+    const existing = document.querySelector('.panel-reading-view');
+    if (existing) existing.remove();
+
+    const tagsHtml = Array.isArray(content.tags)
+      ? content.tags.map(function(t) { return '<span class="reading-tag">#' + t + '</span>'; }).join('')
+      : '<span class="reading-tag">#' + content.tags + '</span>';
+
+    const panel = document.createElement('section');
+    panel.className = 'panel panel-reading-view';
+    panel.id = 'reading-' + content.slug;
+    panel.innerHTML =
+      '<div class="panel-inner reading-inner">' +
+        '<div class="reading-header">' +
+          '<button class="reading-back" onclick="closeReadingView()">' +
+            '<span class="back-arrow">←</span>' +
+            '<span class="back-label">BACK</span>' +
+          '</button>' +
+          '<div class="reading-meta">' +
+            '<span class="reading-date">' + formatDate(content.date) + '</span>' +
+            '<span class="reading-tags">' + tagsHtml + '</span>' +
+          '</div>' +
+          '<h2 class="reading-title">' + content.title + '</h2>' +
+          '<div class="reading-title-line"></div>' +
+        '</div>' +
+        '<div class="reading-body">' + content.bodyHtml + '</div>' +
+        '<div class="reading-footer">' +
+          '<div class="reading-footer-line"></div>' +
+          '<button class="reading-back-btn" onclick="closeReadingView()">[← BACK TO POSTS]</button>' +
+        '</div>' +
+      '</div>';
+
+    track.appendChild(panel);
+
+    // Scroll to the new panel
+    if (typeof scrollToTarget === 'function') {
+      scrollToTarget(panel.offsetLeft);
+    }
+  }
+
+  // Close reading view — remove panel and scroll back
+  function closeReadingView() {
+    const panel = document.querySelector('.panel-reading-view');
+    if (!panel) return;
+
+    const postsPanel = document.getElementById('posts');
+    const targetLeft = postsPanel ? postsPanel.offsetLeft : 0;
+
+    panel.remove();
+
+    if (typeof scrollToTarget === 'function') {
+      scrollToTarget(targetLeft);
+    }
+  }
+
+  // Make closeReadingView globally accessible for onclick handlers
+  window.closeReadingView = closeReadingView;
+
+  // Initialize posts system
+  async function initPosts() {
+    if (!initMarked()) {
+      console.warn('[BlueSkyCoffee] marked.js not loaded, posts will render as plain text');
+    }
+
+    try {
+      const res = await fetch('posts.json?t=' + Date.now());
+      if (!res.ok) throw new Error('posts.json not found');
+      const data = await res.json();
+      const posts = data.posts;
+
+      // Sort by date descending
+      posts.sort(function(a, b) { return b.date.localeCompare(a.date); });
+
+      // Render featured posts (top 3)
+      const featured = posts.filter(function(p) { return p.featured !== false; }).slice(0, 3);
+      renderPostCards(featured);
+
+      // Render archive
+      renderArchive(posts);
+      renderArchiveStats(posts);
+
+      // Bind click handlers
+      bindPostListeners(posts);
+    } catch (err) {
+      console.error('[BlueSkyCoffee] Failed to load posts:', err);
+      // Fallback: show error indicator
+      const grid = document.getElementById('postsGrid');
+      if (grid) {
+        grid.innerHTML = '<p style="opacity:0.4;font-size:12px;">Posts unavailable — run via HTTP server, not file://</p>';
+      }
+    }
+  }
+
+  // Initialize posts on DOM ready
+  initPosts();
+
+  // Add Escape key to close reading view
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.querySelector('.panel-reading-view')) {
+      e.preventDefault();
+      closeReadingView();
+    }
+  });
+
   // --- Footer Matrix Rain ---
   const footerCanvasEl = document.getElementById('footerCanvas');
   if (footerCanvasEl) {
