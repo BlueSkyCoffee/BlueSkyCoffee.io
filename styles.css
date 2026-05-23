@@ -450,42 +450,193 @@ body {
 }
 
 /* ============================================================
-   ARCHIVE
+   ARCHIVE — Pixel card timeline with dither dividers
    ============================================================ */
-.archive-list { display: flex; flex-direction: column; gap: 48px; max-width: 700px; }
+.archive-list { display: flex; flex-direction: column; gap: 0; max-width: 750px; }
+
+.archive-year-group {
+  position: relative;
+  padding-left: 48px;
+  margin-bottom: 40px;
+}
+
+.archive-year-group::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 0;
+  bottom: -40px;
+  width: 2px;
+  background: repeating-linear-gradient(
+    180deg,
+    var(--white) 0px, var(--white) 4px,
+    transparent 4px, transparent 10px
+  );
+  opacity: 0.2;
+}
+
+.archive-year-group:last-child::before { display: none; }
+
+.year-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.year-dot {
+  position: absolute;
+  left: -42px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--white);
+  background: var(--black);
+  transform: rotate(45deg);
+}
 
 .year-label {
   font-family: var(--font-display);
-  font-size: 36px;
-  opacity: 0.3;
-  margin-bottom: 12px;
+  font-size: 28px;
+  letter-spacing: 3px;
+  opacity: 0.8;
 }
 
-.archive-entries { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+.year-count {
+  font-size: 11px;
+  padding: 3px 10px;
+  border: 1px solid var(--white);
+  opacity: 0.4;
+  letter-spacing: 1px;
+}
 
-.archive-link {
-  display: flex; align-items: baseline; gap: 12px;
-  padding: 10px 16px;
-  border: 2px solid transparent;
+.archive-entries { list-style: none; display: flex; flex-direction: column; gap: 0; }
+
+.archive-item {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 12px 16px;
+  border: 1px solid transparent;
   transition: all 0.1s ease;
   font-size: 14px;
+  position: relative;
 }
-.archive-link:hover {
+
+.archive-item::before {
+  content: '';
+  position: absolute;
+  left: -42px;
+  top: 50%;
+  width: 28px;
+  height: 1px;
+  background: var(--white);
+  opacity: 0.15;
+}
+
+.archive-item:hover {
   border-color: var(--white);
   background: var(--white);
   color: var(--black);
 }
 
-.tree-branch { font-size: 12px; opacity: 0.4; min-width: 20px; }
-.archive-link:hover .tree-branch { opacity: 1; }
+.archive-item:hover::before { opacity: 0.6; }
 
 .entry-date {
   font-family: var(--font-display);
-  font-size: 12px;
-  opacity: 0.5;
-  min-width: 40px;
+  font-size: 11px;
+  opacity: 0.6;
+  min-width: 50px;
+  letter-spacing: 1px;
+  padding: 2px 6px;
+  border: 1px solid var(--white);
+  text-align: center;
 }
-.archive-link:hover .entry-date { opacity: 1; }
+
+.archive-item:hover .entry-date {
+  border-color: var(--black);
+  opacity: 1;
+}
+
+.entry-tag {
+  font-size: 10px;
+  padding: 2px 8px;
+  border: 1px solid var(--white);
+  opacity: 0.5;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.archive-item:hover .entry-tag { opacity: 0.8; }
+
+.entry-title {
+  flex: 1;
+  letter-spacing: 0.5px;
+}
+
+.archive-item:hover .entry-title { font-weight: 700; }
+
+.entry-arrow {
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: all 0.1s ease;
+  font-family: var(--font-display);
+  font-size: 12px;
+}
+
+.archive-item:hover .entry-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Dither divider between year groups */
+.year-divider {
+  height: 8px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--white) 0px, var(--white) 2px,
+    transparent 2px, transparent 6px
+  );
+  opacity: 0.1;
+  margin: 32px 0;
+}
+
+/* Archive stats bar */
+.archive-stats {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 40px;
+  padding: 16px 20px;
+  border: var(--pixel) solid var(--white);
+  background: var(--black);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-number {
+  font-family: var(--font-display);
+  font-size: 24px;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 10px;
+  opacity: 0.4;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.archive-dither {
+  width: 40px;
+  height: 40px;
+  background: repeating-conic-gradient(var(--white) 0% 25%, transparent 0% 50%) 0 0 / 4px 4px;
+  margin-left: auto;
+  opacity: 0.3;
+}
 
 /* ============================================================
    CONTACT
@@ -662,6 +813,15 @@ body {
   .contact-content { flex-direction: column; gap: 32px; }
   .panel-inner { padding: 0 24px; }
   .section-header { padding: 0 24px; margin-bottom: 32px; }
+
+  /* Archive responsive */
+  .archive-year-group { padding-left: 32px; }
+  .archive-year-group::before { left: 8px; }
+  .year-dot { left: -28px; width: 10px; height: 10px; }
+  .archive-item::before { left: -28px; width: 20px; }
+  .archive-stats { gap: 20px; padding: 12px 16px; }
+  .stat-number { font-size: 20px; }
+  .entry-tag { display: none; }
 }
 
 @media (max-width: 480px) {
