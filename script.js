@@ -43,6 +43,7 @@
     draw();
   }
 
+
   // --- Date ---
   const dateEl = document.getElementById('currentDate');
   if (dateEl) {
@@ -117,17 +118,27 @@
 
     // Convert vertical wheel to horizontal scroll
     container.addEventListener('wheel', function(e) {
-      // Check if we're over a vertically scrollable area
       const target = e.target;
-      const scrollableParent = target.closest('.panel[style*="overflow-y: auto"], .scroll-container-y, .reading-body, .reading-inner, .archive-list, .posts-grid');
+      const scrollableParent = target.closest('.scroll-container-y, .reading-body, .reading-inner, .archive-list, .posts-grid');
 
-      // If in a vertically scrollable area and there's vertical scroll content, let it scroll vertically
+      // If in a vertically scrollable area, check boundaries
       if (scrollableParent) {
         const el = scrollableParent;
         const canScrollVertically = el.scrollHeight > el.clientHeight;
-        if (canScrollVertically && Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-          // Allow vertical scroll — don't prevent default
-          return;
+        const isVerticalDominant = Math.abs(e.deltaY) > Math.abs(e.deltaX);
+
+        if (canScrollVertically && isVerticalDominant) {
+          const scrollTop = el.scrollTop;
+          const scrollBottom = scrollTop + el.clientHeight;
+          const atTop = scrollTop <= 1;
+          const atBottom = scrollBottom >= el.scrollHeight - 1;
+
+          // At boundary and scrolling further out — let horizontal scroll take over
+          if ((atTop && e.deltaY < 0) || (atBottom && e.deltaY > 0)) {
+            // Fall through to horizontal
+          } else {
+            return; // Allow vertical scroll
+          }
         }
       }
 
@@ -187,8 +198,14 @@
       });
     }
 
+    // Expose scroll functions globally for keyboard nav
+    window.scrollToTarget = scrollToTarget;
+
     // Keyboard
     document.addEventListener('keydown', function(e) {
+      // Don't navigate if game is active
+      if (window.isGameActive && window.isGameActive()) return;
+
       if (e.key === 'ArrowRight') {
         e.preventDefault();
         scrollToTarget(container.scrollLeft + container.clientWidth);
@@ -201,6 +218,101 @@
 
   // --- Posts System ---
   const postCache = new Map(); // Cache fetched post content by slug
+  let allPostsList = []; // All posts for pagination
+  let currentPage = 1;
+  let postsPerPage = 3;
+
+  // Calculate posts per page based on viewport width
+  function calcPostsPerPage() {
+    const w = window.innerWidth;
+    if (w <= 768) return 1;
+    if (w <= 1024) return 2;
+    return 3;
+  }
+
+  // Render post cards to #postsGrid for a given page
+  function renderPostCards(posts) {
+    const grid = document.getElementById('postsGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    const ditherClasses = ['', ' post-dither-alt', ' post-dither-alt2'];
+    const start = (currentPage - 1) * postsPerPage;
+    const pagePosts = posts.slice(start, start + postsPerPage);
+
+    pagePosts.forEach(function(post, i) {
+      const article = document.createElement('article');
+      article.className = 'post-card';
+      article.setAttribute('data-slug', post.slug);
+      const globalIdx = start + i;
+      article.innerHTML =
+        '<span class="post-badge">' + String(globalIdx + 1).padStart(2, '0') + '</span>' +
+        '<div class="post-dither' + ditherClasses[globalIdx % 3] + '"></div>' +
+        '<div class="post-meta">' +
+          '<span class="post-date">' + formatDate(post.date) + '</span>' +
+          '<span class="post-tag">#' + (Array.isArray(post.tags) ? post.tags[0] : post.tags) + '</span>' +
+        '</div>' +
+        '<h3 class="post-title">' + post.title + '</h3>' +
+        '<p class="post-excerpt">' + post.excerpt + '</p>' +
+        '<a href="#" class="post-link">[read more] →</a>';
+
+      grid.appendChild(article);
+    });
+  }
+
+  // Render pagination buttons
+  function renderPagination(totalPosts) {
+    const container = document.getElementById('postsPagination');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const totalPages = Math.ceil(totalPosts / postsPerPage);
+    if (totalPages <= 1) return;
+
+    // Prev button
+    var prevBtn = document.createElement('button');
+    prevBtn.className = 'page-btn' + (currentPage === 1 ? ' disabled' : '');
+    prevBtn.textContent = '←';
+    prevBtn.setAttribute('data-page', String(currentPage - 1));
+    prevBtn.setAttribute('type', 'button');
+    container.appendChild(prevBtn);
+
+    // Page numbers
+    for (var p = 1; p <= totalPages; p++) {
+      (function(pageNum) {
+        var btn = document.createElement('button');
+        btn.className = 'page-btn' + (pageNum === currentPage ? ' active' : '');
+        btn.textContent = String(pageNum);
+        btn.setAttribute('data-page', String(pageNum));
+        btn.setAttribute('type', 'button');
+        container.appendChild(btn);
+      })(p);
+    }
+
+    // Next button
+    var nextBtn = document.createElement('button');
+    nextBtn.className = 'page-btn' + (currentPage === totalPages ? ' disabled' : '');
+    nextBtn.textContent = '→';
+    nextBtn.setAttribute('data-page', String(currentPage + 1));
+    nextBtn.setAttribute('type', 'button');
+    container.appendChild(nextBtn);
+  }
+
+  // Handle pagination click via event delegation
+  function bindPagination(allPosts) {
+    var container = document.getElementById('postsPagination');
+    if (!container) return;
+    container.addEventListener('click', function(e) {
+      var btn = e.target.closest('.page-btn');
+      if (!btn || btn.classList.contains('disabled')) return;
+      e.preventDefault();
+      var page = parseInt(btn.getAttribute('data-page'), 10);
+      if (isNaN(page)) return;
+      currentPage = page;
+      renderPostCards(allPosts);
+      renderPagination(allPosts.length);
+    });
+  }
 
   // Initialize marked.js when available
   function initMarked() {
@@ -325,53 +437,53 @@
     });
   }
 
-  // Render archive entries grouped by year to #archiveList
-  function renderArchive(posts) {
-    const list = document.getElementById('archiveList');
-    if (!list) return;
-
-    // Group by year
-    const years = {};
+  // Shared: Group posts by year and return HTML string for timeline
+  function buildTimelineHTML(posts) {
+    var years = {};
     posts.forEach(function(post) {
-      const year = post.date.split('-')[0];
+      var year = post.date.split('-')[0];
       if (!years[year]) years[year] = [];
       years[year].push(post);
     });
 
-    const sortedYears = Object.keys(years).sort(function(a, b) { return b - a; });
+    var sortedYears = Object.keys(years).sort(function(a, b) { return b - a; });
+    var html = '';
 
     sortedYears.forEach(function(year, idx) {
-      const yearGroup = document.createElement('div');
-      yearGroup.className = 'archive-year-group';
+      var entries = years[year].sort(function(a, b) { return b.date.localeCompare(a.date); });
 
-      const entries = years[year].sort(function(a, b) { return b.date.localeCompare(a.date); });
+      html += '<div class="tl-year">';
+      html += '<div class="tl-line"></div>';
+      html += '<div class="tl-year-head">';
+      html += '<div class="tl-node"></div>';
+      html += '<h3 class="tl-year-label">' + year + '</h3>';
+      html += '<span class="tl-year-count">' + entries.length + ' posts</span>';
+      html += '</div>';
 
-      yearGroup.innerHTML =
-        '<div class="year-header">' +
-          '<div class="year-dot"></div>' +
-          '<h3 class="year-label">' + year + '</h3>' +
-          '<span class="year-count">' + entries.length + ' posts</span>' +
-        '</div>' +
-        '<ul class="archive-entries">' +
-          entries.map(function(post) {
-            return '<li class="archive-item" data-slug="' + post.slug + '">' +
-              '<span class="entry-date">' + formatShortDate(post.date) + '</span>' +
-              '<span class="entry-tag">#' + (Array.isArray(post.tags) ? post.tags[0] : post.tags) + '</span>' +
-              '<span class="entry-title">' + post.title + '</span>' +
-              '<span class="entry-arrow">→</span>' +
-            '</li>';
-          }).join('') +
-        '</ul>';
+      entries.forEach(function(post) {
+        html += '<div class="tl-item" data-slug="' + post.slug + '">';
+        html += '<span class="tl-date">' + formatShortDate(post.date) + '</span>';
+        html += '<span class="tl-tag">#' + (Array.isArray(post.tags) ? post.tags[0] : post.tags) + '</span>';
+        html += '<span class="tl-title">' + post.title + '</span>';
+        html += '<span class="tl-arrow">→</span>';
+        html += '</div>';
+      });
 
-      list.appendChild(yearGroup);
+      html += '</div>';
 
-      // Add divider between years (not after last)
       if (idx < sortedYears.length - 1) {
-        const divider = document.createElement('div');
-        divider.className = 'year-divider';
-        list.appendChild(divider);
+        html += '<div class="tl-sep"></div>';
       }
     });
+
+    return html;
+  }
+
+  // Render archive entries grouped by year to #archiveList
+  function renderArchive(posts) {
+    const list = document.getElementById('archiveList');
+    if (!list) return;
+    list.innerHTML = buildTimelineHTML(posts);
   }
 
   // Update archive stats
@@ -392,100 +504,127 @@
     if (tagEl) tagEl.textContent = tags.size;
   }
 
-  // Bind click handlers for post cards and archive items
+  // Bind click handlers for post cards and archive items using event delegation
   function bindPostListeners(allPosts) {
-    // Post card "read more" links
-    document.querySelectorAll('.post-card .post-link').forEach(function(link) {
-      link.addEventListener('click', function(e) {
+    function handlePostClick(e) {
+      const link = e.target.closest('.post-link');
+      if (link) {
         e.preventDefault();
+        e.stopPropagation();
         const card = link.closest('.post-card');
         const slug = card ? card.getAttribute('data-slug') : null;
         if (slug) {
           const post = allPosts.find(function(p) { return p.slug === slug; });
           if (post) openReadingView(post);
         }
-      });
-    });
+        return;
+      }
+    }
 
-    // Archive item clicks
-    document.querySelectorAll('.archive-item').forEach(function(item) {
-      item.addEventListener('click', function(e) {
+    function handleArchiveClick(e) {
+      const archiveItem = e.target.closest('.archive-item');
+      if (archiveItem) {
         e.preventDefault();
-        const slug = item.getAttribute('data-slug');
+        e.stopPropagation();
+        const slug = archiveItem.getAttribute('data-slug');
         if (slug) {
           const post = allPosts.find(function(p) { return p.slug === slug; });
           if (post) openReadingView(post);
         }
-      });
-    });
+      }
+    }
+
+    const postsSection = document.getElementById('posts');
+    if (postsSection) {
+      postsSection.addEventListener('click', handlePostClick);
+    }
   }
 
-  // Open reading view — dynamically inject a panel
+  // Open reading view — create overlay that slides up from bottom
   async function openReadingView(post) {
     const content = await loadPostContent(post);
-    const track = document.querySelector('.scroll-track');
-    if (!track) return;
 
     // Remove existing reading view if any
-    const existing = document.querySelector('.panel-reading-view');
+    const existing = document.querySelector('.reading-overlay');
     if (existing) existing.remove();
+
+    // Disable horizontal scroll during reading
+    if (container) {
+      container.style.pointerEvents = 'none';
+    }
 
     const tagsHtml = Array.isArray(content.tags)
       ? content.tags.map(function(t) { return '<span class="reading-tag">#' + t + '</span>'; }).join('')
       : '<span class="reading-tag">#' + content.tags + '</span>';
 
-    const panel = document.createElement('section');
-    panel.className = 'panel panel-reading-view';
-    panel.id = 'reading-' + content.slug;
-    panel.innerHTML =
-      '<div class="panel-inner reading-inner">' +
-        '<div class="reading-header">' +
-          '<button class="reading-back" onclick="closeReadingView()">' +
-            '<span class="back-arrow">←</span>' +
-            '<span class="back-label">BACK</span>' +
-          '</button>' +
-          '<div class="reading-meta">' +
-            '<span class="reading-date">' + formatDate(content.date) + '</span>' +
-            '<span class="reading-tags">' + tagsHtml + '</span>' +
+    const overlay = document.createElement('div');
+    overlay.className = 'reading-overlay';
+    overlay.innerHTML =
+      '<div class="reading-backdrop"></div>' +
+      '<div class="reading-slide">' +
+        '<div class="reading-scroll">' +
+          '<div class="reading-inner">' +
+            '<div class="reading-header">' +
+              '<button class="reading-back">' +
+                '<span class="back-arrow">←</span>' +
+                '<span class="back-label">BACK</span>' +
+              '</button>' +
+              '<div class="reading-meta">' +
+                '<span class="reading-date">' + formatDate(content.date) + '</span>' +
+                '<span class="reading-tags">' + tagsHtml + '</span>' +
+              '</div>' +
+              '<h2 class="reading-title">' + content.title + '</h2>' +
+              '<div class="reading-title-line"></div>' +
+            '</div>' +
+            '<div class="reading-body">' + content.bodyHtml + '</div>' +
+            '<div class="reading-footer">' +
+              '<div class="reading-footer-line"></div>' +
+              '<button class="reading-back-btn">[← BACK TO POSTS]</button>' +
+            '</div>' +
           '</div>' +
-          '<h2 class="reading-title">' + content.title + '</h2>' +
-          '<div class="reading-title-line"></div>' +
-        '</div>' +
-        '<div class="reading-body">' + content.bodyHtml + '</div>' +
-        '<div class="reading-footer">' +
-          '<div class="reading-footer-line"></div>' +
-          '<button class="reading-back-btn" onclick="closeReadingView()">[← BACK TO POSTS]</button>' +
         '</div>' +
       '</div>';
 
-    track.appendChild(panel);
+    document.body.appendChild(overlay);
 
-    // Scroll to the new panel
-    if (typeof scrollToTarget === 'function') {
-      scrollToTarget(panel.offsetLeft);
-    }
+    // Trigger slide-up animation on next frame
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        overlay.classList.add('active');
+      });
+    });
+
+    // Bind back buttons
+    overlay.querySelector('.reading-back').addEventListener('click', closeReadingView);
+    overlay.querySelector('.reading-back-btn').addEventListener('click', closeReadingView);
+
+    // Click backdrop to close
+    overlay.querySelector('.reading-backdrop').addEventListener('click', closeReadingView);
   }
 
-  // Close reading view — remove panel and scroll back
+  // Close reading view — slide down then remove
   function closeReadingView() {
-    const panel = document.querySelector('.panel-reading-view');
-    if (!panel) return;
+    const overlay = document.querySelector('.reading-overlay');
+    if (!overlay) return;
 
-    const postsPanel = document.getElementById('posts');
-    const targetLeft = postsPanel ? postsPanel.offsetLeft : 0;
+    overlay.classList.add('closing');
+    overlay.classList.remove('active');
 
-    panel.remove();
-
-    if (typeof scrollToTarget === 'function') {
-      scrollToTarget(targetLeft);
+    // Re-enable horizontal scroll after animation
+    if (container) {
+      container.style.pointerEvents = '';
     }
-  }
 
-  // Make closeReadingView globally accessible for onclick handlers
-  window.closeReadingView = closeReadingView;
+    // Remove after animation completes
+    setTimeout(function() {
+      overlay.remove();
+    }, 450);
+  }
 
   // Initialize posts system
   async function initPosts() {
+    postsPerPage = calcPostsPerPage();
+
     if (!initMarked()) {
       console.warn('[BlueSkyCoffee] marked.js not loaded, posts will render as plain text');
     }
@@ -494,21 +633,18 @@
       const res = await fetch('posts.json?t=' + Date.now());
       if (!res.ok) throw new Error('posts.json not found');
       const data = await res.json();
-      const posts = data.posts;
+      allPostsList = data.posts;
 
       // Sort by date descending
-      posts.sort(function(a, b) { return b.date.localeCompare(a.date); });
+      allPostsList.sort(function(a, b) { return b.date.localeCompare(a.date); });
 
-      // Render featured posts (top 3)
-      const featured = posts.filter(function(p) { return p.featured !== false; }).slice(0, 3);
-      renderPostCards(featured);
-
-      // Render archive
-      renderArchive(posts);
-      renderArchiveStats(posts);
+      // Render current page
+      renderPostCards(allPostsList);
+      renderPagination(allPostsList.length);
 
       // Bind click handlers
-      bindPostListeners(posts);
+      bindPostListeners(allPostsList);
+      bindPagination(allPostsList);
     } catch (err) {
       console.error('[BlueSkyCoffee] Failed to load posts:', err);
       // Fallback: show error indicator
@@ -518,6 +654,18 @@
       }
     }
   }
+
+  // Responsive: recalc pagination on resize
+  window.addEventListener('resize', function() {
+    if (allPostsList.length === 0) return;
+    var newPerPage = calcPostsPerPage();
+    if (newPerPage !== postsPerPage) {
+      postsPerPage = newPerPage;
+      currentPage = 1;
+      renderPostCards(allPostsList);
+      renderPagination(allPostsList.length);
+    }
+  });
 
   // Initialize posts on DOM ready
   initPosts();
@@ -555,7 +703,6 @@
       fctx.fillStyle = '#fff';
       fctx.font = FS + 'px monospace';
       for (let i = 0; i < drops.length; i++) {
-        fctx.fillStyle = Math.random() > 0.95 ? '#fff' : 'rgba(255,255,255,0.5)';
         fctx.fillText(CHARS[Math.floor(Math.random() * CHARS.length)], i * FS, drops[i] * FS);
         if (drops[i] * FS > fc.height && Math.random() > 0.975) drops[i] = 0;
         drops[i]++;
@@ -566,5 +713,298 @@
     window.addEventListener('resize', resizeFooter);
     setTimeout(function() { resizeFooter(); drawFooter(); }, 200);
   }
+
+  // --- About Timeline Overlay ---
+  (function() {
+    const btn = document.getElementById('timelineToggleBtn');
+    let rendered = false;
+    let allPosts = [];
+    let overlay = null;
+
+    if (!btn) return;
+
+    function openTimeline() {
+      // Remove existing overlay if any
+      const existing = document.querySelector('.timeline-overlay');
+      if (existing) existing.remove();
+
+      overlay = document.createElement('div');
+      overlay.className = 'timeline-overlay';
+      overlay.innerHTML =
+        '<div class="timeline-backdrop"></div>' +
+        '<div class="timeline-slide">' +
+          '<div class="timeline-scroll">' +
+            '<div class="timeline-header">' +
+              '<button class="timeline-back" id="timelineBackBtn" type="button">' +
+                '<span class="back-arrow">←</span>' +
+                '<span class="back-label">BACK</span>' +
+              '</button>' +
+              '<h2 class="timeline-title">TIMELINE</h2>' +
+              '<div class="timeline-title-line"></div>' +
+            '</div>' +
+            '<div class="timeline-body" id="timelineBody">' +
+              (rendered ? buildTimelineHTML(allPosts) : '<p style="font-size:12px;opacity:0.5;">Loading...</p>') +
+            '</div>' +
+          '</div>' +
+        '</div>';
+
+      document.body.appendChild(overlay);
+
+      // Trigger slide-up animation on next frame
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          overlay.classList.add('active');
+          btn.classList.add('active');
+        });
+      });
+
+      // Bind back button
+      overlay.querySelector('.timeline-back').addEventListener('click', closeTimeline);
+      overlay.querySelector('.timeline-backdrop').addEventListener('click', closeTimeline);
+
+      // Lazy render on first open
+      if (!rendered) {
+        fetch('posts.json?t=' + Date.now())
+          .then(function(res) { return res.json(); })
+          .then(function(data) {
+            allPosts = data.posts;
+            allPosts.sort(function(a, b) { return b.date.localeCompare(a.date); });
+            rendered = true;
+            const body = document.getElementById('timelineBody');
+            if (body) body.innerHTML = buildTimelineHTML(allPosts);
+            bindTimelineClicks();
+          })
+          .catch(function() {
+            const body = document.getElementById('timelineBody');
+            if (body) body.innerHTML = '<p style="font-size:12px;opacity:0.5;">Timeline unavailable.</p>';
+          });
+      } else {
+        bindTimelineClicks();
+      }
+    }
+
+    function closeTimeline() {
+      if (!overlay) return;
+      overlay.classList.add('closing');
+      overlay.classList.remove('active');
+      btn.classList.remove('active');
+      setTimeout(function() {
+        if (overlay) overlay.remove();
+        overlay = null;
+      }, 450);
+    }
+
+    function bindTimelineClicks() {
+      var body = document.getElementById('timelineBody');
+      if (!body) return;
+      body.addEventListener('click', function(ev) {
+        var item = ev.target.closest('.tl-item');
+        if (item) {
+          ev.preventDefault();
+          ev.stopPropagation();
+          var slug = item.getAttribute('data-slug');
+          if (slug) {
+            var post = allPosts.find(function(p) { return p.slug === slug; });
+            if (post) openReadingView(post);
+          }
+        }
+      });
+    }
+
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (document.querySelector('.timeline-overlay')) {
+        closeTimeline();
+      } else {
+        openTimeline();
+      }
+    });
+  })();
+
+  // --- Footer Snake Game ---
+  (function() {
+    const canvas = document.getElementById('gameCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const W = canvas.width;   // 320
+    const H = canvas.height;  // 240
+    const GRID = 16;
+    const COLS = W / GRID;    // 20
+    const ROWS = H / GRID;    // 15
+
+    let snake, dir, nextDir, food, score, gameLoop, state;
+
+    const promptEl = document.getElementById('gamePrompt');
+    const hudEl = document.getElementById('gameHud');
+    const scoreEl = document.getElementById('gameScore');
+    const overScreenEl = document.getElementById('gameOverScreen');
+    const overScoreEl = document.getElementById('gameOverScore');
+    const startBtn = document.getElementById('gameStartBtn');
+    const quitBtn = document.getElementById('gameQuitBtn');
+    const restartBtn = document.getElementById('gameRestartBtn');
+
+    state = 'idle';
+
+    function initGame() {
+      snake = [
+        { x: 10, y: 7 },
+        { x: 9, y: 7 },
+        { x: 8, y: 7 }
+      ];
+      dir = { x: 1, y: 0 };
+      nextDir = { x: 1, y: 0 };
+      score = 0;
+      placeFood();
+      if (scoreEl) scoreEl.textContent = '0';
+    }
+
+    function placeFood() {
+      const occupied = {};
+      snake.forEach(function(s) { occupied[s.x + ',' + s.y] = true; });
+      const candidates = [];
+      for (let x = 0; x < COLS; x++) {
+        for (let y = 0; y < ROWS; y++) {
+          if (!occupied[x + ',' + y]) candidates.push({ x: x, y: y });
+        }
+      }
+      if (candidates.length === 0) { gameOver(); return; }
+      food = candidates[Math.floor(Math.random() * candidates.length)];
+    }
+
+    function draw() {
+      // Clear — solid black
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, W, H);
+
+      // Draw subtle dithered grid dots
+      ctx.fillStyle = '#fff';
+      for (let x = 0; x <= COLS; x++) {
+        for (let y = 0; y <= ROWS; y++) {
+          if ((x + y) % 2 === 0) {
+            ctx.fillRect(x * GRID, y * GRID, 1, 1);
+          }
+        }
+      }
+
+      // Draw snake (white blocks with 1px gap for pixel feel)
+      ctx.fillStyle = '#fff';
+      snake.forEach(function(s, i) {
+        const gap = i === 0 ? 0 : 1;
+        ctx.fillRect(s.x * GRID + gap, s.y * GRID + gap, GRID - gap * 2, GRID - gap * 2);
+      });
+
+      // Draw food (blinking)
+      const blink = Math.floor(Date.now() / 300) % 2;
+      if (blink) {
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(food.x * GRID, food.y * GRID, GRID, GRID);
+      } else {
+        for (let fx = 0; fx < GRID; fx += 4) {
+          for (let fy = 0; fy < GRID; fy += 4) {
+            if ((fx + fy) % 8 === 0) {
+              ctx.fillRect(food.x * GRID + fx, food.y * GRID + fy, 2, 2);
+            }
+          }
+        }
+      }
+
+      // Draw border
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(0, 0, W, H);
+    }
+
+    function update() {
+      dir = nextDir;
+      const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+
+      // Wall collision
+      if (head.x < 0 || head.x >= COLS || head.y < 0 || head.y >= ROWS) { gameOver(); return; }
+
+      // Self collision
+      for (let i = 0; i < snake.length; i++) {
+        if (snake[i].x === head.x && snake[i].y === head.y) { gameOver(); return; }
+      }
+
+      snake.unshift(head);
+
+      // Food collision
+      if (head.x === food.x && head.y === food.y) {
+        score += 10;
+        if (scoreEl) scoreEl.textContent = score;
+        placeFood();
+      } else {
+        snake.pop();
+      }
+
+      draw();
+    }
+
+    function startGame() {
+      initGame();
+      state = 'playing';
+      if (promptEl) promptEl.style.display = 'none';
+      if (overScreenEl) overScreenEl.style.display = 'none';
+      if (hudEl) hudEl.style.display = 'flex';
+      draw();
+      gameLoop = setInterval(update, 120);
+    }
+
+    function gameOver() {
+      state = 'over';
+      clearInterval(gameLoop);
+      if (overScoreEl) overScoreEl.textContent = score;
+      if (overScreenEl) overScreenEl.style.display = 'flex';
+
+      // Flash effect
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, W, H);
+      setTimeout(function() { draw(); }, 150);
+    }
+
+    function quitGame() {
+      state = 'idle';
+      clearInterval(gameLoop);
+      if (promptEl) promptEl.style.display = 'flex';
+      if (hudEl) hudEl.style.display = 'none';
+      if (overScreenEl) overScreenEl.style.display = 'none';
+
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(0, 0, W, H);
+    }
+
+    // Key handler for game — capture phase to intercept before nav handler
+    function handleGameKey(e) {
+      if (state !== 'playing') return;
+      const key = e.key;
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].indexOf(key) !== -1) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      if (key === 'ArrowUp' && dir.y !== 1) nextDir = { x: 0, y: -1 };
+      else if (key === 'ArrowDown' && dir.y !== -1) nextDir = { x: 0, y: 1 };
+      else if (key === 'ArrowLeft' && dir.x !== 1) nextDir = { x: -1, y: 0 };
+      else if (key === 'ArrowRight' && dir.x !== -1) nextDir = { x: 1, y: 0 };
+    }
+
+    document.addEventListener('keydown', handleGameKey, true);
+
+    // Button handlers
+    if (startBtn) startBtn.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); startGame(); });
+    if (quitBtn) quitBtn.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); quitGame(); });
+    if (restartBtn) restartBtn.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); startGame(); });
+
+    // Expose state for keyboard nav check
+    window.isGameActive = function() { return state === 'playing'; };
+
+    // Draw initial idle canvas
+    quitGame();
+  })();
 
 })();

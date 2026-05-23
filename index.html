@@ -25,14 +25,8 @@
         <a href="#hero" class="nav-dot active" data-section="hero"></a>
         <a href="#about" class="nav-dot" data-section="about"></a>
         <a href="#posts" class="nav-dot" data-section="posts"></a>
-        <a href="#archive" class="nav-dot" data-section="archive"></a>
         <a href="#contact" class="nav-dot" data-section="contact"></a>
       </nav>
-      <div class="header-meta">
-        <span class="meta-date" id="currentDate"></span>
-        <span class="meta-sep">|</span>
-        <span class="meta-scroll-hint">SCROLL →</span>
-      </div>
     </div>
   </header>
 
@@ -159,6 +153,14 @@
                     <span class="skill-percent">92%</span>
                   </div>
                 </div>
+
+                <!-- Timeline toggle -->
+                <div class="about-timeline-trigger">
+                  <button class="timeline-toggle-btn" id="timelineToggleBtn" type="button">
+                    <span class="btn-icon">▸</span>
+                    <span class="btn-label">TIMELINE</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -176,40 +178,9 @@
               <div class="posts-grid" id="postsGrid">
                 <!-- JS will render post cards here from posts.json -->
               </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Archive -->
-        <section class="panel" id="archive">
-          <div class="scroll-container-y">
-            <div class="panel-inner">
-              <div class="section-header">
-                <span class="section-number">03</span>
-                <h2 class="section-title">ARCHIVE</h2>
-                <div class="section-line"></div>
+              <div class="posts-pagination" id="postsPagination">
+                <!-- JS renders pagination buttons here -->
               </div>
-
-              <!-- Stats bar -->
-              <div class="archive-stats">
-              <div class="stat-item">
-                <span class="stat-number" id="archiveTotalCount">0</span>
-                <span class="stat-label">Total Posts</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-number" id="archiveYearCount">0</span>
-                <span class="stat-label">Years</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-number" id="archiveTagCount">0</span>
-                <span class="stat-label">Tags</span>
-              </div>
-              <div class="archive-dither"></div>
-            </div>
-
-            <div class="archive-list" id="archiveList">
-              <!-- JS will render archive entries grouped by year -->
-            </div>
             </div>
           </div>
         </section>
@@ -218,40 +189,31 @@
         <section class="panel" id="contact">
           <div class="panel-inner">
             <div class="section-header">
-              <span class="section-number">04</span>
+              <span class="section-number">03</span>
               <h2 class="section-title">CONTACT</h2>
               <div class="section-line"></div>
             </div>
 
             <div class="contact-content">
-              <!-- Left: Signal tower visual -->
+              <!-- Left: 1bit pixel antenna tower -->
               <div class="contact-visual">
                 <div class="signal-tower">
-                  <!-- Radar circles -->
-                  <div class="radar-circle"></div>
-                  <div class="radar-circle"></div>
-                  <div class="radar-circle"></div>
-                  <div class="radar-circle"></div>
+                  <!-- Expanding square waves -->
+                  <div class="signal-wave"></div>
+                  <div class="signal-wave"></div>
+                  <div class="signal-wave"></div>
 
-                  <!-- Pulse waves -->
-                  <div class="pulse-wave"></div>
-                  <div class="pulse-wave"></div>
-                  <div class="pulse-wave"></div>
+                  <!-- Antenna tip with blinking light -->
+                  <div class="tower-tip"></div>
 
-                  <!-- Center dot -->
-                  <div class="signal-center"></div>
+                  <!-- Tower body with horizontal bars -->
+                  <div class="tower-body"></div>
 
-                  <!-- Signal lines -->
-                  <div class="signal-lines">
-                    <div class="signal-line"></div>
-                    <div class="signal-line"></div>
-                    <div class="signal-line"></div>
-                    <div class="signal-line"></div>
-                    <div class="signal-line"></div>
-                    <div class="signal-line"></div>
-                    <div class="signal-line"></div>
-                    <div class="signal-line"></div>
-                  </div>
+                  <!-- Tower base -->
+                  <div class="tower-base"></div>
+
+                  <!-- Ground line -->
+                  <div class="tower-ground"></div>
                 </div>
               </div>
 
@@ -294,6 +256,24 @@
               <a href="#" class="footer-link">Source</a>
               <a href="#" class="footer-link">Colophon</a>
             </div>
+
+            <!-- Snake Game Easter Egg -->
+            <div class="footer-game" id="footerGame">
+              <div class="game-prompt" id="gamePrompt">
+                <button class="game-start-btn" id="gameStartBtn" type="button">[ PRESS START ]</button>
+              </div>
+              <canvas class="game-canvas" id="gameCanvas" width="320" height="240"></canvas>
+              <div class="game-hud" id="gameHud">
+                <span class="game-score">SCORE: <span id="gameScore">0</span></span>
+                <button class="game-quit-btn" id="gameQuitBtn" type="button">[ QUIT ]</button>
+              </div>
+              <div class="game-over-screen" id="gameOverScreen">
+                <div class="game-over-text">GAME OVER</div>
+                <div class="game-over-score">SCORE: <span id="gameOverScore">0</span></div>
+                <button class="game-start-btn" id="gameRestartBtn" type="button">[ RETRY ]</button>
+              </div>
+            </div>
+
             <div class="footer-particles"></div>
           </div>
         </section>
