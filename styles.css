@@ -324,38 +324,64 @@ a {
   background: transparent;
 }
 
-.hero-ornament {
-  position: absolute;
-  font-family: var(--font-body);
-  font-size: 14px;
-  opacity: 0.2;
-  color: var(--white);
-}
-
-.hero-ornament.top-left {
-  top: calc(var(--header-height) + 24px);
-  left: 48px;
-}
-
-.hero-ornament.top-right {
-  top: calc(var(--header-height) + 24px);
-  right: 48px;
-}
-
 .hero-content {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 64px;
   padding: 0 48px;
   width: 100%;
 }
 
-.hero-terminal {
-  border: var(--pixel) solid var(--white);
-  background: var(--black);
-  max-width: 560px;
-  box-shadow: 8px 8px 0 var(--white);
+.hero-name {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.hero-dither-line {
+  width: 200px;
+  height: 4px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--white) 0px,
+    var(--white) 8px,
+    transparent 8px,
+    transparent 12px
+  );
+  animation: ditherShift 3s ease-in-out infinite;
+}
+
+@keyframes ditherShift {
+  0%, 100% { background-position: 0 0; opacity: 0.4; }
+  50% { background-position: 4px 0; opacity: 1; }
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: 64px;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  color: var(--white);
+  text-shadow: 4px 4px 0 var(--white);
+  animation: titleGlitch 5s ease-in-out infinite;
+}
+
+@keyframes titleGlitch {
+  0%, 90%, 100% { text-shadow: 4px 4px 0 var(--white); transform: translate(0); }
+  91% { text-shadow: -4px 4px 0 var(--white); transform: translate(2px, -1px); }
+  92% { text-shadow: 4px -4px 0 var(--white); transform: translate(-2px, 1px); }
+  93% { text-shadow: 4px 4px 0 var(--white); transform: translate(0); }
+}
+
+.hero-subtitle {
+  font-family: var(--font-body);
+  font-size: 14px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--white);
+  opacity: 0.5;
 }
 
 .terminal-bar {
@@ -421,32 +447,6 @@ a {
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
-}
-
-.hero-visual {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-}
-
-.hero-ascii-art {
-  font-family: var(--font-body);
-  font-size: 11px;
-  line-height: 1.2;
-  color: var(--white);
-  opacity: 0.7;
-  text-align: center;
-  border: 2px solid var(--white);
-  padding: 16px;
-  background: var(--black);
-}
-
-.hero-dither-art {
-  width: 160px;
-  height: 160px;
-  border: var(--pixel) solid var(--white);
-  overflow: hidden;
 }
 
 .dither-grid {

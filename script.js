@@ -164,14 +164,45 @@
   const mainScroll = document.getElementById('mainScroll');
 
   if (mainScroll) {
-    mainScroll.addEventListener('wheel', (e) => {
-      const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX)
-        ? e.deltaY
-        : e.deltaX;
+    let currentScroll = 0;
+    let targetScroll = 0;
+    let rafId = null;
 
-      e.preventDefault();
-      mainScroll.scrollLeft += delta * 3;
-    }, { capture: true, passive: false });
+    function smoothScroll() {
+      const diff = targetScroll - currentScroll;
+      if (Math.abs(diff) < 0.5) {
+        mainScroll.scrollLeft = targetScroll;
+        currentScroll = targetScroll;
+        rafId = null;
+        return;
+      }
+      currentScroll += diff * 0.15;
+      mainScroll.scrollLeft = currentScroll;
+      rafId = requestAnimationFrame(smoothScroll);
+    }
+
+    mainScroll.addEventListener(
+      'wheel',
+      (e) => {
+        e.preventDefault();
+        const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+        targetScroll += delta * 3;
+        targetScroll = Math.max(0, Math.min(targetScroll, mainScroll.scrollWidth - mainScroll.clientWidth));
+        if (!rafId) {
+          currentScroll = mainScroll.scrollLeft;
+          rafId = requestAnimationFrame(smoothScroll);
+        }
+      },
+      { capture: true, passive: false }
+    );
+
+    // Sync currentScroll when user interacts via touch/keyboard
+    mainScroll.addEventListener('scroll', () => {
+      if (!rafId) {
+        currentScroll = mainScroll.scrollLeft;
+        targetScroll = currentScroll;
+      }
+    });
   }
 
   // --- Scroll Progress Bar ---
