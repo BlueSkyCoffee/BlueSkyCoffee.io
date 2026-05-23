@@ -164,23 +164,10 @@
   const mainScroll = document.getElementById('mainScroll');
 
   if (mainScroll) {
-    let scrollTimeout;
-
-    document.addEventListener(
-      'wheel',
-      (e) => {
-        e.preventDefault();
-        const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
-        mainScroll.scrollLeft += delta * 2;
-
-        mainScroll.classList.remove('snap-strict');
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => {
-          mainScroll.classList.add('snap-strict');
-        }, 200);
-      },
-      { capture: true, passive: false }
-    );
+    mainScroll.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      mainScroll.scrollLeft += e.deltaY || e.deltaX;
+    }, { passive: false });
   }
 
   // --- Scroll Progress Bar ---

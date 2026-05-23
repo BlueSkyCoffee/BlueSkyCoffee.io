@@ -28,19 +28,17 @@
 
 html {
   font-size: 16px;
-  scroll-behavior: smooth;
   -webkit-font-smoothing: none;
   -moz-osx-font-smoothing: unset;
   font-smooth: never;
-  overflow: hidden;
 }
 
 body {
   font-family: var(--font-body);
   background: var(--black);
   color: var(--white);
-  overflow: hidden;
-  position: relative;
+  margin: 0;
+  padding: 0;
 }
 
 /* --- 1bit Background Canvas --- */
@@ -239,16 +237,16 @@ a {
 
 /* --- Horizontal Scroll --- */
 .horizontal-scroll {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
   height: 100vh;
   overflow-x: auto;
-  overflow-y: auto;
-  scroll-snap-type: x proximity;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-}
-
-.horizontal-scroll.snap-strict {
-  scroll-snap-type: x mandatory;
 }
 
 .horizontal-scroll::-webkit-scrollbar {
@@ -258,7 +256,6 @@ a {
 .scroll-track {
   display: flex;
   height: 100%;
-  min-width: max-content;
 }
 
 /* --- Section Base --- */
