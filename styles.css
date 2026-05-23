@@ -247,10 +247,6 @@ a {
   scrollbar-width: none;
 }
 
-.horizontal-scroll.no-snap {
-  scroll-snap-type: none;
-}
-
 .horizontal-scroll::-webkit-scrollbar {
   display: none;
 }

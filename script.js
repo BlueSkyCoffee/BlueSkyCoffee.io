@@ -164,23 +164,13 @@
   const mainScroll = document.getElementById('mainScroll');
 
   if (mainScroll) {
-    let snapTimeout;
-
     mainScroll.addEventListener('wheel', (e) => {
-      // Handle both vertical and horizontal wheel input
       const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX)
         ? e.deltaY
         : e.deltaX;
 
       e.preventDefault();
       mainScroll.scrollLeft += delta * 3;
-
-      // Temporarily disable snap during wheel for smooth feel
-      mainScroll.classList.add('no-snap');
-      clearTimeout(snapTimeout);
-      snapTimeout = setTimeout(() => {
-        mainScroll.classList.remove('no-snap');
-      }, 300);
     }, { capture: true, passive: false });
   }
 
