@@ -639,49 +639,259 @@ body {
 }
 
 /* ============================================================
-   CONTACT
+   CONTACT — Signal tower with pulse waves and contact cards
    ============================================================ */
-.contact-content { display: flex; align-items: center; gap: 64px; }
-
-.contact-terminal {
-  border: var(--pixel) solid var(--white);
-  max-width: 480px; width: 100%;
-  box-shadow: 6px 6px 0 var(--white);
+.contact-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: start;
 }
 
-.terminal-bar {
+/* Left: Signal tower visual */
+.contact-visual {
+  position: relative;
+  height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.signal-tower {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+/* Radar circles */
+.radar-circle {
+  position: absolute;
+  border: 2px solid var(--white);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.radar-circle:nth-child(1) { width: 60px; height: 60px; opacity: 0.8; }
+.radar-circle:nth-child(2) { width: 120px; height: 120px; opacity: 0.5; }
+.radar-circle:nth-child(3) { width: 180px; height: 180px; opacity: 0.3; }
+.radar-circle:nth-child(4) { width: 240px; height: 240px; opacity: 0.15; }
+
+/* Pulse wave animation */
+.pulse-wave {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border: 2px solid var(--white);
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulseExpand 3s ease-out infinite;
+}
+
+.pulse-wave:nth-child(5) { animation-delay: 0s; }
+.pulse-wave:nth-child(6) { animation-delay: 1s; }
+.pulse-wave:nth-child(7) { animation-delay: 2s; }
+
+@keyframes pulseExpand {
+  0% { width: 60px; height: 60px; opacity: 1; }
+  100% { width: 280px; height: 280px; opacity: 0; }
+}
+
+/* Center dot */
+.signal-center {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: var(--white);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: signalBlink 2s ease-in-out infinite;
+}
+
+@keyframes signalBlink {
+  0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 0.3; transform: translate(-50%, -50%) scale(0.8); }
+}
+
+/* Signal lines radiating out */
+.signal-lines {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  transform: translate(-50%, -50%);
+}
+
+.signal-line {
+  position: absolute;
+  height: 2px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--white) 0px, var(--white) 4px,
+    transparent 4px, transparent 8px
+  );
+  top: 50%;
+  left: 50%;
+  transform-origin: left center;
+  opacity: 0.3;
+}
+
+.signal-line:nth-child(1) { width: 100px; transform: rotate(0deg); }
+.signal-line:nth-child(2) { width: 80px; transform: rotate(45deg); }
+.signal-line:nth-child(3) { width: 100px; transform: rotate(90deg); }
+.signal-line:nth-child(4) { width: 80px; transform: rotate(135deg); }
+.signal-line:nth-child(5) { width: 100px; transform: rotate(180deg); }
+.signal-line:nth-child(6) { width: 80px; transform: rotate(225deg); }
+.signal-line:nth-child(7) { width: 100px; transform: rotate(270deg); }
+.signal-line:nth-child(8) { width: 80px; transform: rotate(315deg); }
+
+/* Right: Contact info cards */
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.contact-card {
+  border: var(--pixel) solid var(--white);
+  padding: 20px 24px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.15s ease;
+}
+
+.contact-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--white);
+  transform: scaleY(0);
+  transition: transform 0.2s ease;
+  transform-origin: top;
+}
+
+.contact-card:hover::before { transform: scaleY(1); }
+
+.contact-card:hover {
   background: var(--white);
   color: var(--black);
-  padding: 8px 12px;
-  display: flex; align-items: center; gap: 12px;
-  border-bottom: var(--pixel) solid var(--white);
-  font-weight: 700;
+  transform: translateX(4px);
 }
 
-.terminal-dots { display: flex; gap: 6px; }
-.dot { width: 8px; height: 8px; background: var(--black); display: block; }
-.terminal-title { font-size: 11px; opacity: 0.7; }
+.card-label {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: 0.5;
+  margin-bottom: 8px;
+}
 
-.terminal-body { padding: 24px; font-size: 14px; line-height: 2; }
-.terminal-body .line { margin-bottom: 4px; }
-.prompt { font-weight: 700; margin-right: 8px; }
-.output { padding-left: 24px; opacity: 0.7; }
-.blink { animation: blink 1s steps(1) infinite; }
+.contact-card:hover .card-label { opacity: 1; }
 
-@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+.card-value {
+  font-size: 16px;
+  line-height: 1.6;
+}
 
-.contact-link { text-decoration: underline; text-underline-offset: 4px; transition: all 0.1s ease; }
-.contact-link:hover { background: var(--white); color: var(--black); }
+.card-value a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  transition: all 0.1s ease;
+}
 
-.contact-dither { width: 160px; height: 160px; border: var(--pixel) solid var(--white); }
+.card-value a:hover {
+  background: var(--black);
+  color: var(--white);
+  border-bottom-color: transparent;
+}
 
-.dither-blocks {
-  width: 100%; height: 100%;
-  background:
-    linear-gradient(45deg, var(--white) 25%, transparent 25%) -8px 0 / 16px 16px,
-    linear-gradient(-45deg, var(--white) 25%, transparent 25%) -8px 0 / 16px 16px,
-    linear-gradient(45deg, transparent 75%, var(--white) 75%) -8px 0 / 16px 16px,
-    linear-gradient(-45deg, transparent 75%, var(--white) 75%) -8px 0 / 16px 16px;
+.card-dither {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 60px;
+  height: 100%;
+  opacity: 0.08;
+  background: repeating-conic-gradient(var(--white) 0% 25%, transparent 0% 50%) 0 0 / 6px 6px;
+}
+
+.contact-card:hover .card-dither { opacity: 0.15; }
+
+/* Social links grid */
+.social-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.social-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 12px;
+  border: 2px solid var(--white);
+  text-decoration: none;
+  color: var(--white);
+  transition: all 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.social-link::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: var(--white);
+  transition: left 0.2s ease;
+  z-index: 0;
+}
+
+.social-link:hover::after { left: 0; }
+.social-link:hover { color: var(--black); }
+
+.social-icon {
+  font-size: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.social-name {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+}
+
+/* Contact ASCII art */
+.contact-ascii {
+  margin-top: 24px;
+  padding: 16px;
+  border: 2px solid var(--white);
+  background: var(--black);
+}
+
+.contact-ascii pre {
+  font-size: 10px;
+  line-height: 1.2;
+  white-space: pre;
+  opacity: 0.6;
 }
 
 /* ============================================================
@@ -810,7 +1020,10 @@ body {
   .section-title { font-size: 20px; }
   .posts-grid { gap: 24px; }
   .post-card { min-width: 280px; }
-  .contact-content { flex-direction: column; gap: 32px; }
+  .contact-content { grid-template-columns: 1fr; gap: 32px; }
+  .contact-visual { height: 240px; }
+  .signal-tower { transform: scale(0.8); }
+  .social-grid { grid-template-columns: repeat(3, 1fr); }
   .panel-inner { padding: 0 24px; }
   .section-header { padding: 0 24px; margin-bottom: 32px; }
 
