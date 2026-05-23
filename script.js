@@ -164,13 +164,24 @@
   const mainScroll = document.getElementById('mainScroll');
 
   if (mainScroll) {
-    document.addEventListener('wheel', (e) => {
-      // Only handle vertical scroll (mouse wheel up/down)
-      if (Math.abs(e.deltaY) >= Math.abs(e.deltaX)) {
-        e.preventDefault();
-        mainScroll.scrollLeft += e.deltaY * 3;
-      }
-    }, { passive: false });
+    let snapTimeout;
+
+    mainScroll.addEventListener('wheel', (e) => {
+      // Handle both vertical and horizontal wheel input
+      const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX)
+        ? e.deltaY
+        : e.deltaX;
+
+      e.preventDefault();
+      mainScroll.scrollLeft += delta * 3;
+
+      // Temporarily disable snap during wheel for smooth feel
+      mainScroll.classList.add('no-snap');
+      clearTimeout(snapTimeout);
+      snapTimeout = setTimeout(() => {
+        mainScroll.classList.remove('no-snap');
+      }, 300);
+    }, { capture: true, passive: false });
   }
 
   // --- Scroll Progress Bar ---

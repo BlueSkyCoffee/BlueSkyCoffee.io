@@ -32,14 +32,14 @@ html {
   -webkit-font-smoothing: none;
   -moz-osx-font-smoothing: unset;
   font-smooth: never;
+  overflow: hidden;
 }
 
 body {
   font-family: var(--font-body);
   background: var(--black);
   color: var(--white);
-  overflow-x: hidden;
-  overflow-y: hidden;
+  overflow: hidden;
   position: relative;
 }
 
@@ -204,10 +204,14 @@ a {
 .horizontal-scroll {
   height: 100vh;
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: auto;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+}
+
+.horizontal-scroll.no-snap {
+  scroll-snap-type: none;
 }
 
 .horizontal-scroll::-webkit-scrollbar {
@@ -490,7 +494,6 @@ a {
   display: flex;
   gap: 32px;
   padding: 0 48px;
-  overflow-x: auto;
 }
 
 .post-card {
