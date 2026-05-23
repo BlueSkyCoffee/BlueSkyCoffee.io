@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
   <!-- 1bit Background Animation Canvas -->
   <canvas class="bg-dither" id="bgDither"></canvas>
 
@@ -21,11 +22,11 @@
         <span class="logo-text">BlueSkyCoffee</span>
       </div>
       <nav class="nav-dots">
-        <a href="#hero" class="nav-dot active" data-section="hero" aria-label="Home"></a>
-        <a href="#about" class="nav-dot" data-section="about" aria-label="About"></a>
-        <a href="#posts" class="nav-dot" data-section="posts" aria-label="Posts"></a>
-        <a href="#archive" class="nav-dot" data-section="archive" aria-label="Archive"></a>
-        <a href="#contact" class="nav-dot" data-section="contact" aria-label="Contact"></a>
+        <a href="#hero" class="nav-dot active" data-section="hero"></a>
+        <a href="#about" class="nav-dot" data-section="about"></a>
+        <a href="#posts" class="nav-dot" data-section="posts"></a>
+        <a href="#archive" class="nav-dot" data-section="archive"></a>
+        <a href="#contact" class="nav-dot" data-section="contact"></a>
       </nav>
       <div class="header-meta">
         <span class="meta-date" id="currentDate"></span>
@@ -35,223 +36,184 @@
     </div>
   </header>
 
-  <!-- Horizontal Scroll Container -->
-  <main class="horizontal-scroll" id="mainScroll">
-    <div class="scroll-track">
+  <!-- Horizontal Scroll Wrapper -->
+  <div class="scroll-wrapper">
+    <div class="scroll-container" id="scrollContainer">
+      <div class="scroll-track">
 
-      <!-- Section: Hero -->
-      <section class="section section-hero" id="hero">
-        <div class="hero-content">
-          <div class="hero-name">
-            <div class="hero-dither-line"></div>
-            <h1 class="hero-title">BlueSkyCoffee</h1>
-            <p class="hero-subtitle">developer · writer · thinker</p>
-            <div class="hero-dither-line"></div>
-          </div>
-        </div>
-        <div class="scroll-arrow">
-          <span class="arrow-dither">▓▓▓░░</span>
-          <span class="arrow-text">SCROLL</span>
-        </div>
-      </section>
-
-      <!-- Section: About -->
-      <section class="section section-about" id="about">
-        <div class="section-header">
-          <span class="section-number">01</span>
-          <h2 class="section-title">ABOUT</h2>
-          <div class="section-line"></div>
-          <span class="section-tag">[profile]</span>
-        </div>
-        <div class="about-content">
-          <div class="about-portrait">
-            <div class="portrait-corner tl"></div>
-            <div class="portrait-corner br"></div>
-            <div class="portrait-dither"></div>
-          </div>
-          <div class="about-text">
-            <div class="text-block">
-              <p class="typewriter-text">Hi, I'm <strong>BlueSkyCoffee</strong>.</p>
-              <p class="typewriter-text">I write code and thoughts in black & white.</p>
-              <p class="typewriter-text">No gradients. No blur. Just pixels and ideas.</p>
+        <!-- Hero -->
+        <section class="panel" id="hero">
+          <div class="panel-inner">
+            <div class="hero-name">
+              <div class="hero-dither-line"></div>
+              <h1 class="hero-title">BlueSkyCoffee</h1>
+              <p class="hero-subtitle">developer · writer · thinker</p>
+              <div class="hero-dither-line"></div>
             </div>
-            <div class="skills-grid">
-              <div class="skill-item">
-                <span class="skill-icon">◼</span>
-                <span class="skill-name">JavaScript</span>
-                <span class="skill-bar filled"></span>
+          </div>
+          <div class="scroll-arrow">
+            <span class="arrow-dither">▓▓▓░░</span>
+            <span class="arrow-text">SCROLL</span>
+          </div>
+        </section>
+
+        <!-- About -->
+        <section class="panel" id="about">
+          <div class="panel-inner">
+            <div class="section-header">
+              <span class="section-number">01</span>
+              <h2 class="section-title">ABOUT</h2>
+              <div class="section-line"></div>
+              <span class="section-tag">[profile]</span>
+            </div>
+            <div class="about-content">
+              <div class="about-portrait">
+                <div class="portrait-corner tl"></div>
+                <div class="portrait-corner br"></div>
+                <div class="portrait-dither"></div>
               </div>
-              <div class="skill-item">
-                <span class="skill-icon">◼</span>
-                <span class="skill-name">React</span>
-                <span class="skill-bar filled"></span>
-              </div>
-              <div class="skill-item">
-                <span class="skill-icon">◼</span>
-                <span class="skill-name">Node.js</span>
-                <span class="skill-bar filled"></span>
-              </div>
-              <div class="skill-item">
-                <span class="skill-icon">◻</span>
-                <span class="skill-name">Rust</span>
-                <span class="skill-bar"></span>
-              </div>
-              <div class="skill-item">
-                <span class="skill-icon">◻</span>
-                <span class="skill-name">WebGL</span>
-                <span class="skill-bar"></span>
-              </div>
-              <div class="skill-item">
-                <span class="skill-icon">◼</span>
-                <span class="skill-name">Writing</span>
-                <span class="skill-bar filled"></span>
+              <div class="about-text">
+                <div class="text-block">
+                  <p>Hi, I'm <strong>BlueSkyCoffee</strong>.</p>
+                  <p>I write code and thoughts in black & white.</p>
+                  <p>No gradients. No blur. Just pixels and ideas.</p>
+                </div>
+                <div class="skills-grid">
+                  <div class="skill-item"><span class="skill-icon">◼</span><span class="skill-name">JavaScript</span><span class="skill-bar filled"></span></div>
+                  <div class="skill-item"><span class="skill-icon">◼</span><span class="skill-name">React</span><span class="skill-bar filled"></span></div>
+                  <div class="skill-item"><span class="skill-icon">◼</span><span class="skill-name">Node.js</span><span class="skill-bar filled"></span></div>
+                  <div class="skill-item"><span class="skill-icon">◻</span><span class="skill-name">Rust</span><span class="skill-bar"></span></div>
+                  <div class="skill-item"><span class="skill-icon">◻</span><span class="skill-name">WebGL</span><span class="skill-bar"></span></div>
+                  <div class="skill-item"><span class="skill-icon">◼</span><span class="skill-name">Writing</span><span class="skill-bar filled"></span></div>
+                </div>
+                <div class="about-links">
+                  <a href="https://github.com" class="bit-link" target="_blank" rel="noopener"><span class="link-icon">⌘</span> GitHub</a>
+                  <a href="https://twitter.com" class="bit-link" target="_blank" rel="noopener"><span class="link-icon">⌘</span> Twitter</a>
+                </div>
               </div>
             </div>
-            <div class="about-links">
-              <a href="https://github.com" class="bit-link" target="_blank" rel="noopener">
-                <span class="link-icon">⌘</span> GitHub
-              </a>
-              <a href="https://twitter.com" class="bit-link" target="_blank" rel="noopener">
-                <span class="link-icon">⌘</span> Twitter
-              </a>
-            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- Section: Posts -->
-      <section class="section section-posts" id="posts">
-        <div class="section-header">
-          <span class="section-number">02</span>
-          <h2 class="section-title">LATEST POSTS</h2>
-          <div class="section-line"></div>
-        </div>
-        <div class="posts-grid">
-          <article class="post-card">
-            <span class="post-badge">01</span>
-            <div class="post-dither"></div>
-            <div class="post-meta">
-              <span class="post-date">2026.05.20</span>
-              <span class="post-tag">#tech</span>
+        <!-- Posts -->
+        <section class="panel" id="posts">
+          <div class="panel-inner">
+            <div class="section-header">
+              <span class="section-number">02</span>
+              <h2 class="section-title">LATEST POSTS</h2>
+              <div class="section-line"></div>
             </div>
-            <h3 class="post-title">Why 1bit Design Matters in 2026</h3>
-            <p class="post-excerpt">In a world of infinite colors, choosing just two is the most radical act of creativity.</p>
-            <a href="#" class="post-link">[read more] →</a>
-          </article>
-          <article class="post-card">
-            <span class="post-badge">02</span>
-            <div class="post-dither post-dither-alt"></div>
-            <div class="post-meta">
-              <span class="post-date">2026.05.15</span>
-              <span class="post-tag">#dev</span>
+            <div class="posts-grid">
+              <article class="post-card">
+                <span class="post-badge">01</span>
+                <div class="post-dither"></div>
+                <div class="post-meta"><span class="post-date">2026.05.20</span><span class="post-tag">#tech</span></div>
+                <h3 class="post-title">Why 1bit Design Matters in 2026</h3>
+                <p class="post-excerpt">In a world of infinite colors, choosing just two is the most radical act of creativity.</p>
+                <a href="#" class="post-link">[read more] →</a>
+              </article>
+              <article class="post-card">
+                <span class="post-badge">02</span>
+                <div class="post-dither post-dither-alt"></div>
+                <div class="post-meta"><span class="post-date">2026.05.15</span><span class="post-tag">#dev</span></div>
+                <h3 class="post-title">Building a Blog Without a Framework</h3>
+                <p class="post-excerpt">Pure HTML, CSS, and vanilla JS. No build step. No dependencies. Just files.</p>
+                <a href="#" class="post-link">[read more] →</a>
+              </article>
+              <article class="post-card">
+                <span class="post-badge">03</span>
+                <div class="post-dither post-dither-alt2"></div>
+                <div class="post-meta"><span class="post-date">2026.05.08</span><span class="post-tag">#thoughts</span></div>
+                <h3 class="post-title">The Aesthetics of Constraints</h3>
+                <p class="post-excerpt">Limitations don't hinder creativity — they focus it. How 1bit thinking applies to code.</p>
+                <a href="#" class="post-link">[read more] →</a>
+              </article>
             </div>
-            <h3 class="post-title">Building a Blog Without a Framework</h3>
-            <p class="post-excerpt">Pure HTML, CSS, and vanilla JS. No build step. No dependencies. Just files.</p>
-            <a href="#" class="post-link">[read more] →</a>
-          </article>
-          <article class="post-card">
-            <span class="post-badge">03</span>
-            <div class="post-dither post-dither-alt2"></div>
-            <div class="post-meta">
-              <span class="post-date">2026.05.08</span>
-              <span class="post-tag">#thoughts</span>
-            </div>
-            <h3 class="post-title">The Aesthetics of Constraints</h3>
-            <p class="post-excerpt">Limitations don't hinder creativity — they focus it. How 1bit thinking applies to code.</p>
-            <a href="#" class="post-link">[read more] →</a>
-          </article>
-        </div>
-      </section>
+          </div>
+        </section>
 
-      <!-- Section: Archive -->
-      <section class="section section-archive" id="archive">
-        <div class="section-header">
-          <span class="section-number">03</span>
-          <h2 class="section-title">ARCHIVE</h2>
-          <div class="section-line"></div>
-        </div>
-        <div class="archive-list">
-          <div class="archive-year">
-            <h3 class="year-label">┬ 2026</h3>
-            <ul class="archive-entries">
-              <li><a href="#" class="archive-link"><span class="tree-branch">├─</span><span class="entry-date">05.20</span> Why 1bit Design Matters in 2026</a></li>
-              <li><a href="#" class="archive-link"><span class="tree-branch">├─</span><span class="entry-date">05.15</span> Building a Blog Without a Framework</a></li>
-              <li><a href="#" class="archive-link"><span class="tree-branch">├─</span><span class="entry-date">05.08</span> The Aesthetics of Constraints</a></li>
-              <li><a href="#" class="archive-link"><span class="tree-branch">├─</span><span class="entry-date">04.22</span> CSS Dithering Patterns: A Deep Dive</a></li>
-              <li><a href="#" class="archive-link"><span class="tree-branch">├─</span><span class="entry-date">04.10</span> Horizontal Scroll as Narrative Device</a></li>
-              <li><a href="#" class="archive-link"><span class="tree-branch">└─</span><span class="entry-date">03.28</span> Terminal Aesthetics in Modern Web</a></li>
-            </ul>
-          </div>
-          <div class="archive-year">
-            <h3 class="year-label">┬ 2025</h3>
-            <ul class="archive-entries">
-              <li><a href="#" class="archive-link"><span class="tree-branch">├─</span><span class="entry-date">12.15</span> Year End Review: 47 Posts</a></li>
-              <li><a href="#" class="archive-link"><span class="tree-branch">├─</span><span class="entry-date">09.03</span> Minimalism in Code and Life</a></li>
-              <li><a href="#" class="archive-link"><span class="tree-branch">├─</span><span class="entry-date">06.21</span> Why I Stopped Using CSS Frameworks</a></li>
-              <li><a href="#" class="archive-link"><span class="tree-branch">└─</span><span class="entry-date">02.14</span> Love Letters to Command Line</a></li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <!-- Section: Contact -->
-      <section class="section section-contact" id="contact">
-        <div class="section-header">
-          <span class="section-number">04</span>
-          <h2 class="section-title">CONTACT</h2>
-          <div class="section-line"></div>
-        </div>
-        <div class="contact-content">
-          <div class="contact-terminal">
-            <div class="terminal-bar">
-              <span class="terminal-dots">
-                <span class="dot"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-              </span>
-              <span class="terminal-title">~/contact</span>
+        <!-- Archive -->
+        <section class="panel" id="archive">
+          <div class="panel-inner">
+            <div class="section-header">
+              <span class="section-number">03</span>
+              <h2 class="section-title">ARCHIVE</h2>
+              <div class="section-line"></div>
             </div>
-            <div class="terminal-body">
-              <p class="line"><span class="prompt">$</span> echo "Let's talk"</p>
-              <p class="line output">Email: <a href="mailto:hello@blueskycoffee.dev" class="contact-link">hello@blueskycoffee.dev</a></p>
-              <p class="line"><span class="prompt">$</span> echo "Find me online"</p>
-              <p class="line output">
-                <a href="#" class="contact-link">GitHub</a> /
-                <a href="#" class="contact-link">Twitter</a> /
-                <a href="#" class="contact-link">RSS</a>
-              </p>
-              <p class="line"><span class="prompt">$</span> <span class="blink">█</span></p>
+            <div class="archive-list">
+              <div class="archive-year">
+                <h3 class="year-label">┬ 2026</h3>
+                <ul class="archive-entries">
+                  <li><a href="#" class="archive-link"><span class="tree-branch">├─</span><span class="entry-date">05.20</span> Why 1bit Design Matters in 2026</a></li>
+                  <li><a href="#" class="archive-link"><span class="tree-branch">├─</span><span class="entry-date">05.15</span> Building a Blog Without a Framework</a></li>
+                  <li><a href="#" class="archive-link"><span class="tree-branch">├─</span><span class="entry-date">05.08</span> The Aesthetics of Constraints</a></li>
+                  <li><a href="#" class="archive-link"><span class="tree-branch">├─</span><span class="entry-date">04.22</span> CSS Dithering Patterns: A Deep Dive</a></li>
+                  <li><a href="#" class="archive-link"><span class="tree-branch">└─</span><span class="entry-date">03.28</span> Terminal Aesthetics in Modern Web</a></li>
+                </ul>
+              </div>
+              <div class="archive-year">
+                <h3 class="year-label">┬ 2025</h3>
+                <ul class="archive-entries">
+                  <li><a href="#" class="archive-link"><span class="tree-branch">├─</span><span class="entry-date">12.15</span> Year End Review: 47 Posts</a></li>
+                  <li><a href="#" class="archive-link"><span class="tree-branch">├─</span><span class="entry-date">09.03</span> Minimalism in Code and Life</a></li>
+                  <li><a href="#" class="archive-link"><span class="tree-branch">└─</span><span class="entry-date">02.14</span> Love Letters to Command Line</a></li>
+                </ul>
+              </div>
             </div>
           </div>
-          <div class="contact-dither">
-            <div class="dither-blocks"></div>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- Section: Footer -->
-      <section class="section section-footer" id="footer">
-        <div class="footer-bg-canvas" id="footerCanvas"></div>
-        <div class="footer-content">
-          <div class="footer-ascii-art">
-            <pre class="ascii-logo">
+        <!-- Contact -->
+        <section class="panel" id="contact">
+          <div class="panel-inner">
+            <div class="section-header">
+              <span class="section-number">04</span>
+              <h2 class="section-title">CONTACT</h2>
+              <div class="section-line"></div>
+            </div>
+            <div class="contact-content">
+              <div class="contact-terminal">
+                <div class="terminal-bar">
+                  <span class="terminal-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+                  <span class="terminal-title">~/contact</span>
+                </div>
+                <div class="terminal-body">
+                  <p class="line"><span class="prompt">$</span> echo "Let's talk"</p>
+                  <p class="line output">Email: <a href="mailto:hello@blueskycoffee.dev" class="contact-link">hello@blueskycoffee.dev</a></p>
+                  <p class="line"><span class="prompt">$</span> echo "Find me online"</p>
+                  <p class="line output"><a href="#" class="contact-link">GitHub</a> / <a href="#" class="contact-link">Twitter</a> / <a href="#" class="contact-link">RSS</a></p>
+                  <p class="line"><span class="prompt">$</span> <span class="blink">█</span></p>
+                </div>
+              </div>
+              <div class="contact-dither"><div class="dither-blocks"></div></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Footer -->
+        <section class="panel panel-footer" id="footer">
+          <div class="footer-bg-canvas" id="footerCanvas"></div>
+          <div class="panel-inner footer-inner">
+            <div class="footer-ascii-art">
+              <pre class="ascii-logo">
  ██▓▓░░ 1BIT █▀█ █▀▀ █▀▄ █░█
  ░░▓▓██ BLOG ░▀▀ ██▄ ▀▄▀ ▀▄▀
-            </pre>
+              </pre>
+            </div>
+            <p class="footer-text">© 2026 BlueSkyCoffee — Built with 2 colors and 0 regrets.</p>
+            <p class="footer-text">No frameworks were harmed in the making of this site.</p>
+            <div class="footer-links">
+              <a href="#" class="footer-link">RSS</a>
+              <a href="#" class="footer-link">Source</a>
+              <a href="#" class="footer-link">Colophon</a>
+            </div>
+            <div class="footer-particles"></div>
           </div>
-          <p class="footer-text">© 2026 BlueSkyCoffee — Built with 2 colors and 0 regrets.</p>
-          <p class="footer-text">No frameworks were harmed in the making of this site.</p>
-          <div class="footer-links">
-            <a href="#" class="footer-link">RSS</a>
-            <a href="#" class="footer-link">Source</a>
-            <a href="#" class="footer-link">Colophon</a>
-          </div>
-          <div class="footer-particles" id="footerParticles"></div>
-        </div>
-      </section>
+        </section>
 
+      </div>
     </div>
-  </main>
+  </div>
 
   <!-- Scroll Progress Bar -->
   <div class="scroll-progress">
