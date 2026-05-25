@@ -1,0 +1,17 @@
+---
+const sections = ['hero', 'about', 'posts', 'contact'];
+---
+
+<header class="fixed-header">
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-block"></span>
+      <span class="logo-text">BlueSkyCoffee</span>
+    </div>
+    <nav class="nav-dots">
+      {sections.map((section, i) => (
+        <a href={`#${section}`} class={`nav-dot${i === 0 ? ' active' : ''}`} data-section={section}></a>
+      ))}
+    </nav>
+  </div>
+</header>

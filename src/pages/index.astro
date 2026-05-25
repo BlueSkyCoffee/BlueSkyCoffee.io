@@ -1,13 +1,71 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
 ---
-<!DOCTYPE html>
-<html lang="zh">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BlueSkyCoffee — 1bit Blog</title>
-</head>
-<body>
-  <h1 style="color:#fff;background:#000;font-family:monospace;padding:2rem;">Astro is working</h1>
-</body>
-</html>
+
+<BaseLayout title="BlueSkyCoffee — 1bit Blog">
+  <canvas class="bg-dither" id="bgDither"></canvas>
+  <Header />
+
+  <div class="scroll-wrapper">
+    <div class="scroll-container" id="scrollContainer">
+      <div class="scroll-track">
+        <section class="panel" id="hero">
+          <div class="panel-inner">
+            <div class="hero-name">
+              <div class="hero-dither-line"></div>
+              <h1 class="hero-title">BlueSkyCoffee</h1>
+              <p class="hero-subtitle">developer · writer · thinker</p>
+              <div class="hero-dither-line"></div>
+            </div>
+          </div>
+          <div class="scroll-arrow">
+            <span class="arrow-dither">▓▓▓░░</span>
+            <span class="arrow-text">SCROLL</span>
+          </div>
+        </section>
+
+        <section class="panel" id="about">
+          <div class="panel-inner">
+            <h2 style="font-family:var(--font-display);font-size:24px;letter-spacing:3px;">ABOUT</h2>
+            <p style="opacity:0.5;margin-top:16px;">Panel migrating...</p>
+          </div>
+        </section>
+
+        <section class="panel" id="posts">
+          <div class="scroll-container-y">
+            <div class="panel-inner">
+              <h2 style="font-family:var(--font-display);font-size:24px;letter-spacing:3px;">LATEST POSTS</h2>
+              <p style="opacity:0.5;margin-top:16px;">Panel migrating...</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" id="contact">
+          <div class="panel-inner">
+            <h2 style="font-family:var(--font-display);font-size:24px;letter-spacing:3px;">CONTACT</h2>
+            <p style="opacity:0.5;margin-top:16px;">Panel migrating...</p>
+          </div>
+        </section>
+
+        <section class="panel panel-footer" id="footer">
+          <div class="panel-inner footer-inner">
+            <h2 style="font-family:var(--font-display);font-size:24px;letter-spacing:3px;">FOOTER</h2>
+            <p style="opacity:0.5;margin-top:16px;">Panel migrating...</p>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-progress">
+    <div class="scroll-progress-bar" id="scrollProgressBar"></div>
+  </div>
+</BaseLayout>
+
+<script type="module">
+  import { initHorizontalScroll } from '../scripts/horizontal-scroll';
+  import { initBackgroundDither } from '../scripts/background-dither';
+  initHorizontalScroll();
+  initBackgroundDither();
+</script>
