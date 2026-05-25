@@ -1,5 +1,5 @@
-// Posts system — renders post cards, pagination, reading view overlay.
-// Phase 3: still uses posts.json. Phase 4 will replace with content collections.
+// Posts system — server-rendered cards, client-side pagination + reading view.
+// Phase 4: reads embedded post data from <script id="post-data">, no posts.json fetch.
 
 interface PostMeta {
   slug: string;
@@ -7,18 +7,9 @@ interface PostMeta {
   date: string;
   tags: string[];
   excerpt: string;
-  file?: string;
+  index: number;
 }
 
-interface PostContent {
-  slug: string;
-  title: string;
-  date: string;
-  tags: string[];
-  bodyHtml: string;
-}
-
-const postCache = new Map<string, PostContent>();
 let allPostsList: PostMeta[] = [];
 let currentPage = 1;
 let postsPerPage = 3;
@@ -35,77 +26,18 @@ function formatDate(dateStr: string): string {
   return dateStr.replace(/-/g, '.');
 }
 
-// Parse YAML frontmatter from raw markdown
-function parseFrontmatter(raw: string): { meta: Record<string, unknown>; body: string } {
-  const match = raw.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
-  if (!match) return { meta: {}, body: raw };
-
-  const frontmatter = match[1];
-  const body = match[2];
-  const meta: Record<string, unknown> = {};
-
-  frontmatter.split('\n').forEach((line) => {
-    const colonIdx = line.indexOf(':');
-    if (colonIdx === -1) return;
-    const key = line.slice(0, colonIdx).trim();
-    let val = line.slice(colonIdx + 1).trim();
-
-    if ((val.startsWith('"') && val.endsWith('"')) ||
-        (val.startsWith("'") && val.endsWith("'"))) {
-      val = val.slice(1, -1);
-    }
-    if (val.startsWith('[') && val.endsWith(']')) {
-      val = val.slice(1, -1).split(',').map((s) => s.trim().replace(/^["']|["']$/g, ''));
-    }
-    if (val === 'true') val = true;
-    if (val === 'false') val = false;
-    meta[key] = val;
-  });
-
-  return { meta, body };
-}
-
-// Fetch and parse a single post's markdown file
-async function loadPostContent(post: PostMeta): Promise<PostContent> {
-  if (postCache.has(post.slug)) {
-    return postCache.get(post.slug)!;
-  }
-
+// Read post metadata from embedded JSON
+function loadPostData(): PostMeta[] {
+  const el = document.getElementById('post-data');
+  if (!el) return [];
   try {
-    const res = await fetch(post.file || 'posts/' + post.slug + '.md');
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const raw = await res.text();
-    const parsed = parseFrontmatter(raw);
-
-    // Check if marked is available
-    const markedGlobal = (window as Record<string, unknown>).marked as { parse: (s: string) => string; setOptions: (o: Record<string, unknown>) => void } | undefined;
-    const bodyHtml = markedGlobal
-      ? markedGlobal.parse(parsed.body as string)
-      : '<pre>' + (parsed.body as string).replace(/</g, '&lt;') + '</pre>';
-
-    const content: PostContent = {
-      slug: post.slug,
-      title: (parsed.meta.title as string) || post.title,
-      date: (parsed.meta.date as string) || post.date,
-      tags: (parsed.meta.tags as string[]) || post.tags,
-      bodyHtml: bodyHtml,
-    };
-
-    postCache.set(post.slug, content);
-    return content;
-  } catch (err) {
-    console.error('[BlueSkyCoffee] Failed to load post:', post.slug, err);
-    return {
-      slug: post.slug,
-      title: post.title,
-      date: post.date,
-      tags: post.tags,
-      bodyHtml: '<p><em>Content unavailable.</em></p>',
-    };
+    return JSON.parse(el.textContent || '[]') as PostMeta[];
+  } catch {
+    return [];
   }
 }
 
-// Render post cards to #postsGrid for current page
+// Re-render post cards for current page (client-side pagination)
 function renderPostCards(posts: PostMeta[]): void {
   const grid = document.getElementById('postsGrid');
   if (!grid) return;
@@ -115,14 +47,14 @@ function renderPostCards(posts: PostMeta[]): void {
   const start = (currentPage - 1) * postsPerPage;
   const pagePosts = posts.slice(start, start + postsPerPage);
 
-  pagePosts.forEach((post, i) => {
+  pagePosts.forEach((post) => {
     const article = document.createElement('article');
     article.className = 'post-card';
     article.setAttribute('data-slug', post.slug);
-    const globalIdx = start + i;
+    const globalIdx = start + pagePosts.indexOf(post);
     article.innerHTML =
-      '<span class="post-badge">' + String(globalIdx + 1).padStart(2, '0') + '</span>' +
-      '<div class="post-dither' + ditherClasses[globalIdx % 3] + '"></div>' +
+      '<span class="post-badge">' + String(post.index + 1).padStart(2, '0') + '</span>' +
+      '<div class="post-dither' + ditherClasses[post.index % 3] + '"></div>' +
       '<div class="post-meta">' +
         '<span class="post-date">' + formatDate(post.date) + '</span>' +
         '<span class="post-tag">#' + (Array.isArray(post.tags) ? post.tags[0] : post.tags) + '</span>' +
@@ -184,9 +116,12 @@ function bindPagination(posts: PostMeta[]): void {
   });
 }
 
-// Open reading view overlay
-async function openReadingView(post: PostMeta): Promise<void> {
-  const content = await loadPostContent(post);
+// Open reading view — reads pre-rendered HTML from hidden store
+function openReadingView(post: PostMeta): void {
+  const contentEl = document.getElementById('post-content-' + post.slug);
+  if (!contentEl) return;
+
+  const bodyHtml = contentEl.innerHTML;
 
   const existing = document.querySelector('.reading-overlay');
   if (existing) existing.remove();
@@ -194,9 +129,9 @@ async function openReadingView(post: PostMeta): Promise<void> {
   scrollContainer = document.getElementById('scrollContainer');
   if (scrollContainer) scrollContainer.style.pointerEvents = 'none';
 
-  const tagsHtml = Array.isArray(content.tags)
-    ? content.tags.map((t) => '<span class="reading-tag">#' + t + '</span>').join('')
-    : '<span class="reading-tag">#' + content.tags + '</span>';
+  const tagsHtml = Array.isArray(post.tags)
+    ? post.tags.map((t) => '<span class="reading-tag">#' + t + '</span>').join('')
+    : '<span class="reading-tag">#' + post.tags + '</span>';
 
   const overlay = document.createElement('div');
   overlay.className = 'reading-overlay';
@@ -211,13 +146,13 @@ async function openReadingView(post: PostMeta): Promise<void> {
               '<span class="back-label">BACK</span>' +
             '</button>' +
             '<div class="reading-meta">' +
-              '<span class="reading-date">' + formatDate(content.date) + '</span>' +
+              '<span class="reading-date">' + formatDate(post.date) + '</span>' +
               '<span class="reading-tags">' + tagsHtml + '</span>' +
             '</div>' +
-            '<h2 class="reading-title">' + content.title + '</h2>' +
+            '<h2 class="reading-title">' + post.title + '</h2>' +
             '<div class="reading-title-line"></div>' +
           '</div>' +
-          '<div class="reading-body">' + content.bodyHtml + '</div>' +
+          '<div class="reading-body">' + bodyHtml + '</div>' +
           '<div class="reading-footer">' +
             '<div class="reading-footer-line"></div>' +
             '<button class="reading-back-btn">[← BACK TO POSTS]</button>' +
@@ -260,10 +195,10 @@ function closeReadingView(): void {
   }, 450);
 }
 
-// Expose openReadingView globally for timeline to call
+// Expose globally for timeline
 (window as Record<string, unknown>).openReadingView = openReadingView;
 
-// Bind click handlers for post cards
+// Bind click handlers
 function bindPostListeners(posts: PostMeta[]): void {
   const postsSection = document.getElementById('posts');
   if (!postsSection) return;
@@ -283,42 +218,17 @@ function bindPostListeners(posts: PostMeta[]): void {
   });
 }
 
-// Initialize posts system
-export async function initPosts(): Promise<void> {
+// Initialize — read embedded data, render pagination
+export function initPostInteractions(): void {
+  allPostsList = loadPostData();
+  if (allPostsList.length === 0) return;
+
   postsPerPage = calcPostsPerPage();
+  currentPage = 1;
 
-  // Configure marked.js if available
-  const markedGlobal = (window as Record<string, unknown>).marked as { setOptions: (o: Record<string, unknown>) => void } | undefined;
-  if (markedGlobal) {
-    markedGlobal.setOptions({
-      breaks: true,
-      gfm: true,
-      headerIds: false,
-      mangle: false,
-    });
-  } else {
-    console.warn('[BlueSkyCoffee] marked.js not loaded, posts will render as plain text');
-  }
-
-  try {
-    const res = await fetch('posts.json?t=' + Date.now());
-    if (!res.ok) throw new Error('posts.json not found');
-    const data = await res.json();
-    allPostsList = data.posts;
-
-    allPostsList.sort((a: PostMeta, b: PostMeta) => b.date.localeCompare(a.date));
-
-    renderPostCards(allPostsList);
-    renderPagination(allPostsList.length);
-    bindPostListeners(allPostsList);
-    bindPagination(allPostsList);
-  } catch (err) {
-    console.error('[BlueSkyCoffee] Failed to load posts:', err);
-    const grid = document.getElementById('postsGrid');
-    if (grid) {
-      grid.innerHTML = '<p style="opacity:0.4;font-size:12px;">Posts unavailable — run via HTTP server, not file://</p>';
-    }
-  }
+  renderPagination(allPostsList.length);
+  bindPostListeners(allPostsList);
+  bindPagination(allPostsList);
 }
 
 // Responsive: recalc pagination on resize

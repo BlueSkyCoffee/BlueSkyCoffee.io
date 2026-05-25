@@ -1,4 +1,13 @@
 ---
+import { getCollection } from 'astro:content';
+
+const allPosts = await getCollection('posts');
+const timelineData = allPosts.map((post) => ({
+  slug: post.slug,
+  title: post.data.title,
+  date: post.data.date,
+  tags: post.data.tags,
+}));
 ---
 
 <section class="panel" id="about">
@@ -96,6 +105,10 @@
     </div>
   </div>
 </section>
+
+<script type="application/json" id="timeline-data">
+  {JSON.stringify(timelineData)}
+</script>
 
 <script type="module">
   import { initTimeline } from '../scripts/timeline-overlay';

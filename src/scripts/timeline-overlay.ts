@@ -1,4 +1,5 @@
 // About timeline overlay — slides up from bottom, shows posts grouped by year.
+// Phase 4: reads embedded timeline data instead of fetching posts.json.
 
 interface PostMeta {
   slug: string;
@@ -8,7 +9,6 @@ interface PostMeta {
 }
 
 let btn: HTMLElement | null = null;
-let rendered = false;
 let allPosts: PostMeta[] = [];
 let overlay: HTMLElement | null = null;
 
@@ -109,7 +109,7 @@ function openTimeline(): void {
           '<div class="timeline-title-line"></div>' +
         '</div>' +
         '<div class="timeline-body" id="timelineBody">' +
-          (rendered ? buildTimelineHTML(allPosts) : '<p style="font-size:12px;opacity:0.5;">Loading...</p>') +
+          buildTimelineHTML(allPosts) +
         '</div>' +
       '</div>' +
     '</div>';
@@ -128,29 +128,23 @@ function openTimeline(): void {
   if (backBtn) backBtn.addEventListener('click', closeTimeline);
   if (backdrop) backdrop.addEventListener('click', closeTimeline);
 
-  if (!rendered) {
-    fetch('posts.json?t=' + Date.now())
-      .then((res) => res.json())
-      .then((data) => {
-        allPosts = data.posts;
-        allPosts.sort((a: PostMeta, b: PostMeta) => b.date.localeCompare(a.date));
-        rendered = true;
-        const body = document.getElementById('timelineBody');
-        if (body) body.innerHTML = buildTimelineHTML(allPosts);
-        bindTimelineClicks();
-      })
-      .catch(() => {
-        const body = document.getElementById('timelineBody');
-        if (body) body.innerHTML = '<p style="font-size:12px;opacity:0.5;">Timeline unavailable.</p>';
-      });
-  } else {
-    bindTimelineClicks();
-  }
+  bindTimelineClicks();
 }
 
 export function initTimeline(): void {
   btn = document.getElementById('timelineToggleBtn');
   if (!btn) return;
+
+  // Read embedded timeline data
+  const el = document.getElementById('timeline-data');
+  if (el) {
+    try {
+      allPosts = JSON.parse(el.textContent || '[]') as PostMeta[];
+      allPosts.sort((a, b) => b.date.localeCompare(a.date));
+    } catch {
+      allPosts = [];
+    }
+  }
 
   btn.addEventListener('click', (e) => {
     e.preventDefault();

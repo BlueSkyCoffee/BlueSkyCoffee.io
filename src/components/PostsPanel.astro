@@ -1,4 +1,32 @@
 ---
+import { getCollection, render } from 'astro:content';
+
+const allPosts = await getCollection('posts');
+const sortedPosts = allPosts.sort((a, b) => b.data.date.localeCompare(a.data.date));
+
+const ditherMap: Record<number, string> = {
+  0: '',
+  1: ' post-dither-alt',
+  2: ' post-dither-alt2',
+};
+
+// Embed post data for client-side JS
+const postData = sortedPosts.map((post, i) => ({
+  slug: post.slug,
+  title: post.data.title,
+  date: post.data.date,
+  tags: post.data.tags,
+  excerpt: post.data.excerpt,
+  index: i,
+}));
+
+// For reading view: render all post bodies into hidden store
+const renderedPosts = await Promise.all(
+  sortedPosts.map(async (post) => {
+    const { Content } = await render(post);
+    return { slug: post.slug, Content };
+  })
+);
 ---
 
 <section class="panel" id="posts">
@@ -9,13 +37,43 @@
         <h2 class="section-title">LATEST POSTS</h2>
         <div class="section-line"></div>
       </div>
-      <div class="posts-grid" id="postsGrid"></div>
+
+      <div class="posts-grid" id="postsGrid">
+        {sortedPosts.map((post, i) => (
+          <article class="post-card" data-slug={post.slug}>
+            <span class="post-badge">{String(i + 1).padStart(2, '0')}</span>
+            <div class={'post-dither' + ditherMap[i % 3]}></div>
+            <div class="post-meta">
+              <span class="post-date">{post.data.date.replace(/-/g, '.')}</span>
+              <span class="post-tag">#{post.data.tags[0]}</span>
+            </div>
+            <h3 class="post-title">{post.data.title}</h3>
+            <p class="post-excerpt">{post.data.excerpt}</p>
+            <a href="#" class="post-link">[read more] →</a>
+          </article>
+        ))}
+      </div>
+
       <div class="posts-pagination" id="postsPagination"></div>
     </div>
   </div>
+
+  <!-- Hidden post content store for reading view -->
+  <div id="post-content-store" style="display:none;" aria-hidden="true">
+    {renderedPosts.map(({ slug, Content }) => (
+      <div id={'post-content-' + slug} class="post-content-hidden">
+        <Content />
+      </div>
+    ))}
+  </div>
+
+  <!-- Embed post metadata for client JS -->
+  <script type="application/json" id="post-data">
+    {JSON.stringify(postData)}
+  </script>
 </section>
 
 <script type="module">
-  import { initPosts } from '../scripts/posts-system';
-  initPosts();
+  import { initPostInteractions } from '../scripts/posts-system';
+  initPostInteractions();
 </script>
