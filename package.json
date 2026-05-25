@@ -1,0 +1,28 @@
+{
+  "name": "blueskycoffee",
+  "version": "2.0.0",
+  "description": "A 1bit personal blog with horizontal scrolling — built with Astro.",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blueskycoffee/blueskycoffee.github.io.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/blueskycoffee/blueskycoffee.github.io/issues"
+  },
+  "homepage": "https://github.com/blueskycoffee/blueskycoffee.github.io#readme",
+  "dependencies": {
+    "@astrojs/check": "^0.9.9",
+    "astro": "^6.3.7",
+    "typescript": "^6.0.3"
+  }
+}
