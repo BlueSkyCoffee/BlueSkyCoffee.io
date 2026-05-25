@@ -1,6 +1,6 @@
 # BlueSkyCoffee — 1bit Blog
 
-A minimal, black-and-white personal blog with horizontal scrolling, built in pure HTML/CSS/JS.
+A minimal, black-and-white personal blog with horizontal scrolling, built with Astro.
 
 ## Features
 
@@ -8,58 +8,76 @@ A minimal, black-and-white personal blog with horizontal scrolling, built in pur
 - **Dithering Patterns** — CSS-generated checkerboard, dot matrix, diagonal lines, crosshatch, and noise textures.
 - **Horizontal Scroll** — Mouse wheel maps to horizontal navigation. Arrow keys for keyboard control.
 - **Animated Background** — Full-screen canvas with flickering pixel-block noise (CRT effect).
-- **Matrix Rain Footer** — Falling 1bit characters (`01░▒▓█▀▄■□▪▫`) with scanline overlay and glitch ASCII art.
-- **Typewriter Effect** — Terminal-style text reveal animation on the hero section.
-- **Zero Dependencies** — No frameworks, no build step, no external JS libraries.
+- **Matrix Rain Footer** — Falling 1bit characters with scanline overlay and glitch ASCII art.
+- **Snake Game** — Footer easter egg, press START to play.
+- **Content Collections** — Markdown posts with frontmatter, auto-indexed by Astro.
+- **Reading View** — Slide-up overlay for full article reading.
+- **Timeline** — About panel timeline, grouped by year, clickable to read posts.
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
-| Structure | HTML5 |
-| Styling | CSS3 (Variables, Grid, Flexbox, `scroll-snap`, `repeating-conic-gradient`, `repeating-linear-gradient`) |
-| Interaction | Vanilla JS (IIFE) |
-| Fonts | Google Fonts — `Silkscreen` (pixel display), `Space Mono` (monospace body) |
-| Deployment | GitHub Pages (static) |
+| Framework | Astro 6 |
+| Structure | Astro components (.astro) |
+| Content | Astro Content Collections (Markdown) |
+| Styling | CSS3 (Variables, Grid, Flexbox, dither patterns) |
+| Interaction | TypeScript modules (client-side) |
+| Fonts | Google Fonts — Silkscreen, Space Mono |
+| Deployment | GitHub Pages (static, Astro build) |
 
 ## File Structure
 
 ```
 BlueSkyCoffee/
-├── index.html    # Main page — sections, terminal UI, navigation
-├── styles.css    # 1bit styles, dithering patterns, animations, responsive
-├── script.js     # Typewriter, horizontal scroll, nav sync, canvas animations
-└── README.md     # This file
+├── src/
+│   ├── components/     # Panel components (Hero, About, Posts, Contact, Footer)
+│   ├── layouts/        # BaseLayout with global CSS + fonts
+│   ├── pages/          # index.astro (single-page)
+│   ├── scripts/        # TypeScript modules (scroll, dither, game, timeline, posts)
+│   ├── styles/         # global.css (all 1bit styles)
+│   └── content/posts/  # Markdown blog posts
+├── public/             # Static assets (.nojekyll)
+├── astro.config.mjs    # Astro configuration
+├── tsconfig.json       # TypeScript configuration
+└── package.json        # Dependencies and scripts
 ```
 
 ## Local Development
 
 ```bash
-# Start a local server
-python3 -m http.server 8080
-
-# Or with Node.js
-npx serve .
+npm install
+npm run dev
 ```
 
-Then open `http://localhost:8080`.
+Open `http://localhost:4321`.
+
+## Build
+
+```bash
+npm run build
+```
+
+Output: `dist/`
 
 ## Deploy to GitHub Pages
 
-```bash
-# Using gh-pages
-npx gh-pages -d .
+Push to `main` branch. GitHub Actions builds and deploys automatically.
 
-# Or push to main and enable Pages in repo Settings
-git push origin main
+Or manually:
+
+```bash
+npm run build
+# dist/ is ready to serve
 ```
 
 ## Keyboard Controls
 
 | Key | Action |
 |-----|--------|
-| `←` / `→` | Navigate sections |
-| `Scroll` | Horizontal scroll (wheel maps to horizontal) |
+| `←` / `→` | Navigate panels |
+| `Escape` | Close reading view or timeline |
+| Arrow keys | Snake game (when active) |
 
 ## License
 
