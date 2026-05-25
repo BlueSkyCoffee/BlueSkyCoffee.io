@@ -1,6 +1,11 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Header from '../components/Header.astro';
+import HeroPanel from '../components/HeroPanel.astro';
+import AboutPanel from '../components/AboutPanel.astro';
+import PostsPanel from '../components/PostsPanel.astro';
+import ContactPanel from '../components/ContactPanel.astro';
+import Footer from '../components/Footer.astro';
 ---
 
 <BaseLayout title="BlueSkyCoffee — 1bit Blog">
@@ -10,50 +15,11 @@ import Header from '../components/Header.astro';
   <div class="scroll-wrapper">
     <div class="scroll-container" id="scrollContainer">
       <div class="scroll-track">
-        <section class="panel" id="hero">
-          <div class="panel-inner">
-            <div class="hero-name">
-              <div class="hero-dither-line"></div>
-              <h1 class="hero-title">BlueSkyCoffee</h1>
-              <p class="hero-subtitle">developer · writer · thinker</p>
-              <div class="hero-dither-line"></div>
-            </div>
-          </div>
-          <div class="scroll-arrow">
-            <span class="arrow-dither">▓▓▓░░</span>
-            <span class="arrow-text">SCROLL</span>
-          </div>
-        </section>
-
-        <section class="panel" id="about">
-          <div class="panel-inner">
-            <h2 style="font-family:var(--font-display);font-size:24px;letter-spacing:3px;">ABOUT</h2>
-            <p style="opacity:0.5;margin-top:16px;">Panel migrating...</p>
-          </div>
-        </section>
-
-        <section class="panel" id="posts">
-          <div class="scroll-container-y">
-            <div class="panel-inner">
-              <h2 style="font-family:var(--font-display);font-size:24px;letter-spacing:3px;">LATEST POSTS</h2>
-              <p style="opacity:0.5;margin-top:16px;">Panel migrating...</p>
-            </div>
-          </div>
-        </section>
-
-        <section class="panel" id="contact">
-          <div class="panel-inner">
-            <h2 style="font-family:var(--font-display);font-size:24px;letter-spacing:3px;">CONTACT</h2>
-            <p style="opacity:0.5;margin-top:16px;">Panel migrating...</p>
-          </div>
-        </section>
-
-        <section class="panel panel-footer" id="footer">
-          <div class="panel-inner footer-inner">
-            <h2 style="font-family:var(--font-display);font-size:24px;letter-spacing:3px;">FOOTER</h2>
-            <p style="opacity:0.5;margin-top:16px;">Panel migrating...</p>
-          </div>
-        </section>
+        <HeroPanel />
+        <AboutPanel />
+        <PostsPanel />
+        <ContactPanel />
+        <Footer />
       </div>
     </div>
   </div>

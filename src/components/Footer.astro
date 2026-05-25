@@ -1,0 +1,46 @@
+---
+---
+
+<section class="panel panel-footer" id="footer">
+  <div class="footer-bg-canvas" id="footerCanvas"></div>
+  <div class="panel-inner footer-inner">
+    <div class="footer-ascii-art">
+      <pre class="ascii-logo">
+ ██▓▓░░ 1BIT █▀█ █▀▀ █▀▄ █░█
+ ░░▓▓██ BLOG ░▀▀ ██▄ ▀▄▀ ▀▄▀
+      </pre>
+    </div>
+    <p class="footer-text">© 2026 BlueSkyCoffee — Built with 2 colors and 0 regrets.</p>
+    <p class="footer-text">No frameworks were harmed in the making of this site.</p>
+    <div class="footer-links">
+      <a href="#" class="footer-link">RSS</a>
+      <a href="#" class="footer-link">Source</a>
+      <a href="#" class="footer-link">Colophon</a>
+    </div>
+
+    <div class="footer-game" id="footerGame">
+      <div class="game-prompt" id="gamePrompt">
+        <button class="game-start-btn" id="gameStartBtn" type="button">[ PRESS START ]</button>
+      </div>
+      <canvas class="game-canvas" id="gameCanvas" width="320" height="240"></canvas>
+      <div class="game-hud" id="gameHud">
+        <span class="game-score">SCORE: <span id="gameScore">0</span></span>
+        <button class="game-quit-btn" id="gameQuitBtn" type="button">[ QUIT ]</button>
+      </div>
+      <div class="game-over-screen" id="gameOverScreen">
+        <div class="game-over-text">GAME OVER</div>
+        <div class="game-over-score">SCORE: <span id="gameOverScore">0</span></div>
+        <button class="game-start-btn" id="gameRestartBtn" type="button">[ RETRY ]</button>
+      </div>
+    </div>
+
+    <div class="footer-particles"></div>
+  </div>
+</section>
+
+<script type="module">
+  import { initMatrixRain } from '../scripts/matrix-rain';
+  import { initSnakeGame } from '../scripts/snake-game';
+  initMatrixRain();
+  initSnakeGame();
+</script>
